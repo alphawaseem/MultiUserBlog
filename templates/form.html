@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Welcome to my blog</h1>
+    <form method="post">
+        <label for="subject"> Subject : <input type="text" name="subject" id="subject" value={{subject}}> </label>
+        <label for="content "> Content : </label>
+        <textarea name="content" id="content" cols="30" rows="10" >{{content}}</textarea>
+        
+        <input type="submit" value="Post">
+    </form>
+    <section class="error">
+        {{error}}
+
+    </section>
+    <section>
+        {% for post in posts %}
+            <article>
+                <h1>{{post.subject}}</h1>
+                <p>{{post.content}}</p>
+                <small>{{post.created}}</small>
+            </article>
+        {% endfor %}
+
+
+    </section>
+</body>
+</html>
