@@ -16,6 +16,8 @@ import webapp2
 import os 
 import jinja2
 
+from google.appengine.ext import db
+
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),autoescape = True)
 
@@ -30,9 +32,37 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template,**kw))
 
 class MainPage(Handler):
+    def render_front(self,error="",subject="",content=""):
+        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC")
+        self.render("form.html",error = error , subject = subject , content = content,posts = posts)
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.write('Hello World')
+        self.render_front()
+    def post(self):
+        subject = self.request.get("subject")
+        content = self.request.get("content")
+        if subject and content:
+            self.addPost(subject,content)
+        else:
+            error = "Please enter subject and content"
+            self.render_front(error,subject,content)
+        
+    def addPost(self,subject,content):
+        a = Post(subject=subject,content=content)
+        a.put()
+        self.render_front()
+
+def blog_key(name='default'):
+    return db.Key.from_path('blogs',name)
+
+class Post(db.Model):
+    subject = db.StringProperty(required=True)
+    content = db.TextProperty(required=True)
+    created = db.DateTimeProperty(auto_now_add = True)
+    last_modified = db.DateTimeProperty(auto_now = True)
+
+    def render(self):
+        self._render_text = self.content.replace('\n','<br>')
+        return render_str("post.html",p=self)
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
