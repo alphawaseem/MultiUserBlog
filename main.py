@@ -44,7 +44,7 @@ class MainPage(Handler):
 
 class RegisterHandler(Handler):
     def get(self):
-        self.write('Register Page Handler')
+        self.render("register.html")
 
     def post(self):
         self.write('Register user to database handler')
