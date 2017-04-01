@@ -1,33 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
-</head>
-<body>
-    <h1>Welcome to my blog</h1>
-    <form method="post">
-        <label for="subject"> Subject : <input type="text" name="subject" id="subject" value={{subject}}> </label>
-        <label for="content "> Content : </label>
-        <textarea name="content" id="content" cols="30" rows="10" >{{content}}</textarea>
-        
-        <input type="submit" value="Post">
+{% extends "layout.html" %} {% block title %} Login {% endblock %} {% block content %}
+<section>
+    <form method="POST">
+        <div class="form-item">
+            <label for="username"> Username : <input type="email" name="username" id="username"> </label>
+        </div>
+        <div class="form-item">
+            <label for="password"> Password : <input type="password" name="password" id="password">
+        </div>
+        <div class="form-item">
+            <label for="remember"> Remember Me : <input type="checkbox" name="remember" id="remember" checked="checked">
+        </div>
+        <div class="form-item">
+            <input type="submit" value="submit">
+        </div>
     </form>
-    <section class="error">
-        {{error}}
-
-    </section>
-    <section>
-        {% for post in posts %}
-            <article>
-                <h1>{{post.subject}}</h1>
-                <p>{{post.content}}</p>
-                <small>{{post.created}}</small>
-            </article>
-        {% endfor %}
-
-
-    </section>
-    <p>You have been here {{visits}} times</p>
-</body>
-</html>
+</section>
+{% endblock %}
