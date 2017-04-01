@@ -1,0 +1,16 @@
+{% extends "layout.html" %} {% block content %}
+<div class="">
+    <section>
+        <article>
+            <h3> Post Title </h3>
+            <p> Post content here ... </p>
+            <footer>
+                Likes Comments
+            </footer>
+        </article>
+    </section>
+    <section>
+        {% if user: %} Show logout button and quick post form {% else: %} show login and sign up {% endif %}
+    </section>
+</div>
+{% endblock %}
