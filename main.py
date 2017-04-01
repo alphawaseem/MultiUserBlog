@@ -39,7 +39,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        self.write('Main Page Handler')
+        self.render('index.html')
 
 
 class RegisterHandler(Handler):
@@ -52,7 +52,7 @@ class RegisterHandler(Handler):
 
 class LoginHandler(Handler):
     def get(self):
-        self.write('Login Handler-GET')
+        self.render('form.html')
 
     def post(self):
         self.write('Login Handler-POST')
