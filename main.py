@@ -15,8 +15,10 @@
 import webapp2
 import os 
 import jinja2
+import hashlib
 
-from google.appengine.ext import db
+from google.appengine.ext import ndb
+# from google.cloud import datastore
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),autoescape = True)
@@ -33,10 +35,17 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def render_front(self,error="",subject="",content=""):
-        posts = db.GqlQuery("SELECT * FROM Post ORDER BY created DESC")
-        self.render("form.html",error = error , subject = subject , content = content,posts = posts)
+        posts = ndb.GqlQuery("SELECT * FROM Post ORDER BY created DESC")
+        visits = self.request.cookies.get('visits','0')
+        if visits and visits.isdigit():
+            visits = int(visits)+1
+        else:
+            visits = 0
+        self.response.headers.add_header('Set-Cookie','visits=%s'%visits)
+        self.render("form.html",error = error , subject = subject , content = content,posts = posts,visits = visits)
     def get(self):
         self.render_front()
+
     def post(self):
         subject = self.request.get("subject")
         content = self.request.get("content")
@@ -52,17 +61,23 @@ class MainPage(Handler):
         self.render_front()
 
 def blog_key(name='default'):
-    return db.Key.from_path('blogs',name)
+    return ndb.Key.from_path('blogs',name)
 
-class Post(db.Model):
-    subject = db.StringProperty(required=True)
-    content = db.TextProperty(required=True)
-    created = db.DateTimeProperty(auto_now_add = True)
-    last_modified = db.DateTimeProperty(auto_now = True)
+class Post(ndb.Model):
+    subject = ndb.StringProperty(required=True)
+    content = ndb.TextProperty(required=True)
+    created = ndb.DateTimeProperty(auto_now_add = True)
+    last_modified = ndb.DateTimeProperty(auto_now = True)
+
 
     def render(self):
         self._render_text = self.content.replace('\n','<br>')
         return render_str("post.html",p=self)
+class User(ndb.Model):
+    email = ndb.StringProperty(required=True)
+    passw = ndb.StringProperty(required=True)
+    joined = ndb.DateTimeProperty(auto_now_add = True)
+    
 
 app = webapp2.WSGIApplication([
     ('/', MainPage),
