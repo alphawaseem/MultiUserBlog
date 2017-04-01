@@ -67,7 +67,7 @@ class LogoutHandler(Handler):
 
 class PostsHandler(Handler):
     def get(self):
-        self.write('Blogs Handler')
+        self.render('posts.html')
 
 
 class PostHandler(Handler):
