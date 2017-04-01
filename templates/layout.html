@@ -29,16 +29,27 @@
             width: 90%;
             margin: 0px 5%;
         }
+        .logo {
+            text-decoration: none;
+        }
     </style>
 </head>
 
 <body>
     <header class="w3-container w3-teal">
         <div class="w3-rest">
-            <h1>Full-Stack Blog</h1>
+            <a href="/" class="logo" ><h1>Full-Stack Blog</h1>
             <h5>The Blog for Full-Stack Developers</h5>
+            </a>
+            {% if user %}
+            <a href="/logout" class="w3-btn w3-right"> Logout </a>
+            
+            {% else %}
+            <a href="/login" class="w3-btn w3-right w3-white w3-text-teal"> Login </a>
+            <a href="/register" class="w3-btn w3-right"> Register </a>
+            {% endif %}            
+            
         </div>
-        {% block header %} {% endblock %}
     </header>
     <main class="w3-panel">
         {% block content %} {% endblock %}
