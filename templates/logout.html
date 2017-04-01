@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %} Are you sure to logout? {% endblock %}
+
+{% block content %}
+
+<section class="w3-center">
+    <h3 class="w3-text-red">Are you sure? You want to logout!</h3>
+    <form method="post">
+        <input type="submit" value="Yes! I will be back soon." class="w3-btn w3-red">
+        <a class="w3-btn w3-teal" href="/welcome">No! Take Me Home.</a>
+    </form>
+
+</section>
+
+{% endblock %}
+
+

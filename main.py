@@ -60,8 +60,7 @@ class LoginHandler(Handler):
 
 class LogoutHandler(Handler):
     def get(self):
-        self.write('Logout Handler - GET')
-
+        self.render('logout.html')
     def post(self):
         self.write('Logout Handler - POST')
 
