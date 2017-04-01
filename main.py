@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import webapp2
-import os 
+import os
 import jinja2
 import hashlib
 
@@ -21,64 +21,100 @@ from google.appengine.ext import ndb
 # from google.cloud import datastore
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir),autoescape = True)
+jinja_env = jinja2.Environment(
+    loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 
 class Handler(webapp2.RequestHandler):
-    def write(self,*a,**kw):
-        self.response.out.write(*a,**kw)
-    def render_str(self,template,**params):
+    def write(self, *a, **kw):
+        self.response.out.write(*a, **kw)
+
+    def render_str(self, template, **params):
         t = jinja_env.get_template(template)
         return t.render(params)
-    def render(self,template,**kw):
-        self.write(self.render_str(template,**kw))
+
+    def render(self, template, **kw):
+        self.write(self.render_str(template, **kw))
+
 
 class MainPage(Handler):
-    def render_front(self,error="",subject="",content=""):
-        posts = ndb.GqlQuery("SELECT * FROM Post ORDER BY created DESC")
-        visits = self.request.cookies.get('visits','0')
-        if visits and visits.isdigit():
-            visits = int(visits)+1
-        else:
-            visits = 0
-        self.response.headers.add_header('Set-Cookie','visits=%s'%visits)
-        self.render("form.html",error = error , subject = subject , content = content,posts = posts,visits = visits)
     def get(self):
-        self.render_front()
+        self.write('Main Page Handler')
+
+
+class RegisterHandler(Handler):
+    def get(self):
+        self.write('Register Page Handler')
 
     def post(self):
-        subject = self.request.get("subject")
-        content = self.request.get("content")
-        if subject and content:
-            self.addPost(subject,content)
-        else:
-            error = "Please enter subject and content"
-            self.render_front(error,subject,content)
-        
-    def addPost(self,subject,content):
-        a = Post(subject=subject,content=content)
-        a.put()
-        self.render_front()
-
-def blog_key(name='default'):
-    return ndb.Key.from_path('blogs',name)
-
-class Post(ndb.Model):
-    subject = ndb.StringProperty(required=True)
-    content = ndb.TextProperty(required=True)
-    created = ndb.DateTimeProperty(auto_now_add = True)
-    last_modified = ndb.DateTimeProperty(auto_now = True)
+        self.write('Register user to database handler')
 
 
-    def render(self):
-        self._render_text = self.content.replace('\n','<br>')
-        return render_str("post.html",p=self)
-class User(ndb.Model):
-    email = ndb.StringProperty(required=True)
-    passw = ndb.StringProperty(required=True)
-    joined = ndb.DateTimeProperty(auto_now_add = True)
-    
+class LoginHandler(Handler):
+    def get(self):
+        self.write('Login Handler-GET')
+
+    def post(self):
+        self.write('Login Handler-POST')
+
+
+class LogoutHandler(Handler):
+    def get(self):
+        self.write('Logout Handler - GET')
+
+    def post(self):
+        self.write('Logout Handler - POST')
+
+
+class PostsHandler(Handler):
+    def get(self):
+        self.write('Blogs Handler')
+
+
+class PostHandler(Handler):
+    def get(self, post_id):
+        self.write('My post %s' % post_id)
+
+
+class NewPostHandler(Handler):
+    def get(self):
+        self.write('Add a new Post - GET')
+
+    def post(self):
+        self.write('Add a new POST')
+
+
+class WelcomePageHandler(Handler):
+    def get(self):
+        self.write('Welcome user handler')
+
+
+class EditPostHandler(Handler):
+    def get(self, post_id):
+        self.write('Edit post handler - GET %s' % post_id)
+
+    def post(self, post_id):
+        self.write('Edit post Handler - POST %s' % post_id)
+
+
+class DeletePostHandler(Handler):
+    def get(self, post_id):
+        self.write('Delete post handler - GET %s' % post_id)
+
+    def post(self, post_id):
+        self.write('delete post handler - POST %s' % post_id)
+
 
 app = webapp2.WSGIApplication([
-    ('/', MainPage),
+    (r'/', MainPage),
+    (r'/register', RegisterHandler),
+    (r'/posts/(\d+)/edit', EditPostHandler),
+    (r'/posts/(\d+)', PostHandler),
+    (r'/posts', PostsHandler),
+    (r'/welcome', WelcomePageHandler),
+    (r'/posts/(\d+)/delete', DeletePostHandler),
+    (r'/posts/new', NewPostHandler),
+    (r'/login', LoginHandler),
+    (r'/logout', LogoutHandler)
+
 ], debug=True)
