@@ -9,16 +9,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <style>
-        html , body {
+        html,
+        body {
             height: 100%;
         }
+        
         body {
             position: relative;
         }
-        body > header {
+        
+        body>header {
             height: 150px;
         }
-        body > footer {
+        
+        body>footer {
             display: block;
             width: 100%;
             position: absolute;
@@ -30,14 +34,14 @@
 
 <body>
     <header class="w3-container w3-teal">
-        <h1>Full-Stack Blog</h1>
-        <h5>The Blog for Full-Stack Developers</h5>
-         {% block header %} {% endblock %}</header>
-    <main class="w3-container">
-        {% block content %}
-
-
-        {% endblock %}
+        <div class="w3-rest">
+            <h1>Full-Stack Blog</h1>
+            <h5>The Blog for Full-Stack Developers</h5>
+        </div>
+        {% block header %} {% endblock %}
+    </header>
+    <main class="w3-panel">
+        {% block content %} {% endblock %}
     </main>
     <footer class="w3-container w3-padding w3-teal w3-center"><small>Copyright&copy; 2017</small>{% block footer %} {% endblock %}</footer>
 </body>
