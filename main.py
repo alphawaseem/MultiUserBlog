@@ -52,7 +52,7 @@ class RegisterHandler(Handler):
 
 class LoginHandler(Handler):
     def get(self):
-        self.render('form.html')
+        self.render('login.html')
 
     def post(self):
         self.write('Login Handler-POST')
