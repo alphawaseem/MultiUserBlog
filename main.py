@@ -98,7 +98,7 @@ class EditPostHandler(Handler):
 
 class DeletePostHandler(Handler):
     def get(self, post_id):
-        self.write('Delete post handler - GET %s' % post_id)
+        self.render("delete.html")
 
     def post(self, post_id):
         self.write('delete post handler - POST %s' % post_id)
