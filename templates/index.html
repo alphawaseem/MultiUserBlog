@@ -30,10 +30,28 @@
         <a href="/posts" class="w3-btn w3-teal w3-margin">View All</a>
     </section>
     <aside class="w3-container w3-col m4">
+        {% if user %}
         <article class="w3-card w3-padding">
+            <div class="w3-container w3-teal">
+            <h2>Add Post</h2>
+        </div>
+        <form class="w3-container w3-padding" action="/posts/new" method="POST">
+            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" required ></label>
+            <label class="w3-text-teal" for="content"><b>Content</b> :
+            <textarea id="content" class="w3-input  w3-text-teal post-content" required="required" ></textarea></label>
+            <input type="submit" class="w3-btn w3-teal w3-margin" value="Post">
+        </form>
         </article>
-        <article class="w3-card w3-padding">
+        {% else %}
+        <article class="w3-card w3-padding w3-text-teal w3-center">
+
+            <h3>Not a member?</h3>
+            <a href="/register" class="w3-btn w3-xlarge w3-teal">Register Now</a>
+            <h3 class="w3-border-bottom"> And Start Blogging!</h3>
+            <a href="/login" class="w3-btn w3-xlarge w3-blue">Login</a>
+            
         </article>
+        {% endif %}
     </aside>
 </section>
 {% endblock %}
