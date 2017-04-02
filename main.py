@@ -61,6 +61,7 @@ class LoginHandler(Handler):
 class LogoutHandler(Handler):
     def get(self):
         self.render('logout.html')
+
     def post(self):
         self.write('Logout Handler - POST')
 
@@ -77,7 +78,7 @@ class PostHandler(Handler):
 
 class NewPostHandler(Handler):
     def get(self):
-        self.write('Add a new Post - GET')
+        self.render('newpost.html')
 
     def post(self):
         self.write('Add a new POST')
