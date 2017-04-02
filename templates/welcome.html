@@ -1,7 +1,8 @@
 {% extends "layout.html" %} {% block title %} Welcome - {{name}} {% endblock %} {% block content %}
-<section class="w3-text-teal">
+<section class="w3-text-teal  w3-row-padding">
     <h2 class="w3-margin">Hello, {{name}} </h2>
-    <section class="w3-content">
+    <section class="w3-content w3-col m8">
+        
         <h3>Your Posts</h3>
         {% for i in range(3) %}
         <article class="w3-card-4 w3-padding w3-text-teal">
@@ -27,6 +28,18 @@
             </div>
         </article>
         {% endfor %}
+    </section>
+    <section class="w3-col m4">
+        <div class="w3-container w3-teal">
+            <h2>Add Post</h2>
+        </div>
+        <form class="w3-container w3-padding w3-card" action="/posts/new" method="POST">
+            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" required ></label>
+            <label class="w3-text-teal" for="content"><b>Content</b> :
+            <textarea id="content" class="w3-input  w3-text-teal post-content" required="required" ></textarea></label>
+            <input type="submit" class="w3-btn w3-teal w3-margin" value="Post">
+        </form>
+
     </section>
 </section>
 {% endblock %}
