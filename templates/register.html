@@ -10,13 +10,18 @@
         <div class="w3-container w3-teal">
             <h2>Registration Form</h2>
         </div>
+        <div class="w3-text-red">
+            <p>{{error_email}}</p>
+            <p>{{error_pass_mismatch}}</p>
+            <p>{{error_agree_terms}}</p>
+        </div>
         <form class="w3-container w3-padding" method="POST">
-            <label class="w3-text-teal" for="firstname"><b>First Name</b> : <input id="firstname" name="firstname" class="w3-input w3-border w3-light-grey" type="email"></label>
-            <label class="w3-text-teal" for="lastname"><b>Last Name</b> : <input id="lastname" name="lastname" class="w3-input w3-border w3-light-grey" type="email"></label>
-            <label class="w3-text-teal" for="username"><b>Email</b> : <input id="username" name="username" class="w3-input w3-border w3-light-grey" type="email"></label>
-            <label class="w3-text-teal" for="password"><b>Password</b> : <input id="password" name="password" class="w3-input w3-border w3-light-grey" type="text"></label>
-            <label class="w3-text-teal" for="password1"><b>Confirm Password</b> : <input id="password1" name="password1" class="w3-input w3-border w3-light-grey" type="text"></label>
-            <label class="w3-text-teal" for="agree"> I Agree Terms and Conditions of this Website <input id="agree"  name="agree" class="w3-check" type="checkbox" checked="checked"></label>
+            <label class="w3-text-teal" for="firstname"><b>First Name</b> : <input id="firstname" name="firstname" value="{{firstname}}" class="w3-input w3-border w3-light-grey" type="text" required="required" ></label>
+            <label class="w3-text-teal" for="lastname"><b>Last Name</b> : <input id="lastname" name="lastname" value="{{lastname}}" class="w3-input w3-border w3-light-grey" type="text" required="required" ></label>
+            <label class="w3-text-teal" for="email"><b>Email</b> : <input id="email" name="email" class="w3-input w3-border w3-light-grey" type="email" required="required"  value="{{email}}" ></label>
+            <label class="w3-text-teal" for="password"><b>Password</b> : <input id="password" name="password" class="w3-input w3-border w3-light-grey" type="password" required="required" ></label>
+            <label class="w3-text-teal" for="password1"><b>Confirm Password</b> : <input id="password1" name="password1" class="w3-input w3-border w3-light-grey" type="password" required="required" ></label>
+            <label class="w3-text-teal" for="agree"> I Agree Terms and Conditions of this Website <input id="agree"  name="agree" class="w3-check" type="checkbox" checked="checked" required="required" ></label>
             <input type="submit" class="w3-btn w3-teal w3-margin" value="Register">
         </form>
     </section>
