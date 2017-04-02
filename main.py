@@ -91,7 +91,7 @@ class WelcomePageHandler(Handler):
 
 class EditPostHandler(Handler):
     def get(self, post_id):
-        self.write('Edit post handler - GET %s' % post_id)
+        self.render('editpost.html')
 
     def post(self, post_id):
         self.write('Edit post Handler - POST %s' % post_id)
