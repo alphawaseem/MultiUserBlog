@@ -1,0 +1,32 @@
+{% extends "layout.html" %} {% block title %} Welcome - {{name}} {% endblock %} {% block content %}
+<section class="w3-text-teal">
+    <h2 class="w3-margin">Hello, {{name}} </h2>
+    <section class="w3-content">
+        <h3>Your Posts</h3>
+        {% for i in range(3) %}
+        <article class="w3-card-4 w3-padding w3-text-teal">
+            <h3> Post title</h3>
+            <p class="w3-text-black">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                consequat. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                aliquip ex ea commodo consequat.
+            </p>
+            <div class="w3-row w3-text-teal">
+                <div class="w3-col m6 s12">
+                    <p><a href="/posts/{{i}}" class="w5-button w3-btn w3-padding-large w3-white w3-border w3-text-teal"><b>VIEW POST »</b></a></p>
+                </div>
+                <div class="w3-col m2 w3-hide-small">
+                    <p><span class="w3-padding-large w3-right"><b>Likes  </b> <span class="w3-badge w3-teal">2</span></span>
+                    </p>
+                </div>
+                <div class="w3-col m4 w3-hide-small">
+                    <p><span class="w3-padding-large w3-right"><b>Comments  </b> <span class="w3-badge w3-teal">2</span></span>
+                    </p>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </section>
+</section>
+{% endblock %}

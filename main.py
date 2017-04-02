@@ -85,7 +85,7 @@ class NewPostHandler(Handler):
 
 class WelcomePageHandler(Handler):
     def get(self):
-        self.write('Welcome user handler')
+        self.render('welcome.html')
 
 
 class EditPostHandler(Handler):
