@@ -21,7 +21,7 @@ import random
 import hmac
 from string import letters
 
-from google.appengine.ext import ndb
+from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
@@ -55,42 +55,44 @@ def make_pw_hash(name, pw, salt=None):
 def valid_pw(name, password, h):
     salt = h.split(',')[0]
     return h == make_pw_hash(name, password, salt)
+
+
 9
 
+
 def users_key(group='default'):
-    return ndb.Key.from_path('users', group)
+    return db.Key.from_path('users', group)
 
 
-class User(ndb.Model):
-    firstname = ndb.StringProperty(required=True)
-    lastname = ndb.StringProperty(required=True)
-    joined = ndb.DateTimeProperty(auto_now_add=True)
-    email = ndb.StringProperty(required=True)
-    pass_hash = ndb.TextProperty(required=True)
-
-    @classmethod
-    def by_id(cls,uid):
-        return User.get_by_id(uid,parent=users_key())
-        
-    @classmethod
-    def by_email(cls,email):
-        u = User.all().filter('email =',email).get()
-        return u
+class User(db.Model):
+    firstname = db.StringProperty(required=True)
+    lastname = db.StringProperty(required=True)
+    joined = db.DateTimeProperty(auto_now_add=True)
+    email = db.StringProperty(required=True)
+    pass_hash = db.TextProperty(required=True)
 
     @classmethod
-    def register(cls,firstname,lastname,pw,email):
-        pw_hash = make_pw_hash(email,pw)
-        return User(parent=users_key(),
-                    firstname = firstname,
-                    lastname = lastname,
+    def by_id(cls, uid):
+        return User.get_by_id(uid)
+
+    @classmethod
+    def by_email(cls, email):
+        user = User.all().filter('email =', email).get()
+        return user
+
+    @classmethod
+    def register(cls, firstname, lastname, pw, email):
+        pw_hash = make_pw_hash(email, pw)
+        return User(firstname=firstname,lastname=lastname,
                     pass_hash=pw_hash,
-                    email = email)
-    
+                    email=email)
+
     @classmethod
-    def login(cls,email,pw):
+    def login(cls, email, pw):
         u = cls.by_email(email)
-        if u and valid_pw(email,pw,u.pass_hash):
+        if u and valid_pw(email, pw, u.pass_hash):
             return u
+
 
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
@@ -134,8 +136,44 @@ class RegisterHandler(Handler):
     def get(self):
         self.render("register.html")
 
+    def email_exists(self, email):
+        if User.by_email(email):
+            return True
+        return False
+
+    def password_matched(self, p1, p2):
+        return p1 == p2
+
     def post(self):
-        firstname = self.request.get()
+        self.firstname = self.request.get('firstname')
+        self.lastname = self.request.get('lastname')
+        self.email = self.request.get('email')
+        self.password = self.request.get('password')
+        self.password1 = self.request.get('password1')
+        self.agree = self.request.get('agree')
+
+
+        params = dict(firstname=self.firstname,
+                      lastname=self.lastname, email=self.email)
+        have_error = False
+        if self.email_exists(self.email):
+            params['error_email'] = 'You cannot use this email. It might have already taken!'
+            have_error = True
+
+        if not self.password_matched(self.password, self.password1):
+            params['error_pass_mismatch'] = 'Passwords do not match'
+            have_error = True
+
+        if not self.agree:
+            params['error_agree_terms'] = 'You must agree to terms and conditions of the website.'
+            have_error = True
+        if have_error:
+            self.render('register.html', **params)
+        else:
+            u = User.register(self.firstname, self.lastname,
+                              self.password, self.email)
+            u.put()
+            self.redirect("/welcome")
 
 
 class LoginHandler(Handler):
