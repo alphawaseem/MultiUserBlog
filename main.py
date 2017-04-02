@@ -72,7 +72,7 @@ class PostsHandler(Handler):
 
 class PostHandler(Handler):
     def get(self, post_id):
-        self.write('My post %s' % post_id)
+        self.render("post.html")
 
 
 class NewPostHandler(Handler):

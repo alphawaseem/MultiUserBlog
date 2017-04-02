@@ -1,0 +1,43 @@
+{% extends "layout.html" %} {% block title %} Post - {{title}} {% endblock %} {% block content %}
+<section class="w3-content">
+    <article class="w3-card-4">
+        <header class="w3-container w3-padding w3-teal">
+            <h2>Post title</h2>
+        </header>
+        <section class="w3-panel">
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                consequat. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                aliquip ex ea commodo consequat.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+                magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+                consequat. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
+                labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+                aliquip ex ea commodo consequat.</p>
+        </section>
+        <footer class="w3-container w3-padding w3-teal">
+            {% if belongs_to_user %}
+            <a href="/posts/8/edit" class="w3-btn w3-green">Edit</a>
+            <a href="/posts/8/delete" class="w3-btn w3-red">Delete</a> {% else %}
+            <a href="/posts/8/edit" class="w3-btn w3-green">Like</a> {% endif %}
+        </footer>
+    </article>
+    <section>
+        <form method="POST">
+       <h4 class="w3-text-teal"> Add a comment</h4>
+       <textarea class="w3-input w3-text-teal"> 
+       </textarea>
+       <input type="submit" value="Post" class="w3-btn w3-teal w3-margin">
+        </form>
+    </section>
+    <section class="w3-text-teal">
+        <section class="w3-padding w3-teal"></section>
+        <h3>Comments</h3>
+        <article>
+            <header></header>
+            <p>this is a comment</p>
+        </article>
+    </section>
+</section>
+{% endblock %}
