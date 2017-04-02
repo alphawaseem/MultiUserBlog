@@ -134,6 +134,9 @@ class MainPage(Handler):
 
 class RegisterHandler(Handler):
     def get(self):
+        val = self.read_secure_cookie('user_id')
+        if val:
+            self.redirect('/welcome')
         self.render("register.html")
 
     def email_exists(self, email):
@@ -173,6 +176,7 @@ class RegisterHandler(Handler):
             u = User.register(self.firstname, self.lastname,
                               self.password, self.email)
             u.put()
+            self.login(u)
             self.redirect("/welcome")
 
 
@@ -212,7 +216,7 @@ class NewPostHandler(Handler):
 
 class WelcomePageHandler(Handler):
     def get(self):
-        self.render('welcome.html')
+        self.render("welcome.html")
 
 
 class EditPostHandler(Handler):
