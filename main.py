@@ -83,7 +83,7 @@ class User(db.Model):
     @classmethod
     def register(cls, firstname, lastname, pw, email):
         pw_hash = make_pw_hash(email, pw)
-        return User(firstname=firstname,lastname=lastname,
+        return User(firstname=firstname, lastname=lastname,
                     pass_hash=pw_hash,
                     email=email)
 
@@ -155,7 +155,6 @@ class RegisterHandler(Handler):
         self.password1 = self.request.get('password1')
         self.agree = self.request.get('agree')
 
-
         params = dict(firstname=self.firstname,
                       lastname=self.lastname, email=self.email)
         have_error = False
@@ -216,8 +215,12 @@ class NewPostHandler(Handler):
 
 class WelcomePageHandler(Handler):
     def get(self):
-        self.render("welcome.html")
-
+        uid = self.read_secure_cookie('user_id')
+        if uid:
+            user = User.by_id(int(uid))
+            self.render('welcome.html', user = user)
+        else:
+            self.redirect('/login')
 
 class EditPostHandler(Handler):
     def get(self, post_id):
