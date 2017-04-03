@@ -15,53 +15,17 @@
 import webapp2
 import os
 import jinja2
-import hashlib
 import re
-import random
-import hmac
-from string import letters
 
 from google.appengine.ext import db
+
+from cookielib import encrypt_cookie_value,decrypt_cookie_value
+from passwordlib import make_pw_hash,verify_pw_hash
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
-
-secret = '$he$lloworld$welcometo$myblog$'
-
-
-def make_secure_val(val):
-    return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
-
-
-def check_secure_val(secure_val):
-    val = secure_val.split('|')[0]
-    if secure_val == make_secure_val(val):
-        return val
-
-
-def make_salt(length=5):
-    return ''.join(random.choice(letters) for x in range(length))
-
-
-def make_pw_hash(name, pw, salt=None):
-    if not salt:
-        salt = make_salt()
-    h = hashlib.sha512(name + pw + salt).hexdigest()
-    return '%s,%s' % (salt, h)
-
-
-def valid_pw(name, password, h):
-    salt = h.split(',')[0]
-    return h == make_pw_hash(name, password, salt)
-
-
-9
-
-
-def users_key(group='default'):
-    return db.Key.from_path('users', group)
 
 
 class User(db.Model):
@@ -70,6 +34,7 @@ class User(db.Model):
     joined = db.DateTimeProperty(auto_now_add=True)
     email = db.StringProperty(required=True)
     pass_hash = db.TextProperty(required=True)
+
 
     @classmethod
     def by_id(cls, uid):
@@ -90,7 +55,7 @@ class User(db.Model):
     @classmethod
     def login(cls, email, pw):
         u = cls.by_email(email)
-        if u and valid_pw(email, pw, u.pass_hash):
+        if u and verify_pw_hash(email, pw, u.pass_hash):
             return u
 
 
@@ -106,36 +71,43 @@ class Handler(webapp2.RequestHandler):
         self.write(self.render_str(template, **kw))
 
     def set_secure_cookie(self, name, val):
-        cookie_val = make_secure_val(val)
+        cookie_val = encrypt_cookie_value(val)
         self.response.headers.add_header(
             'Set-Cookie',
             '%s=%s; Path=/' % (name, cookie_val))
 
     def read_secure_cookie(self, name):
         cookie_val = self.request.cookies.get(name)
-        return cookie_val and check_secure_val(cookie_val)
+        return cookie_val and decrypt_cookie_value(cookie_val)
 
-    def login(self, user):
+    def login_user(self, user):
         self.set_secure_cookie('user_id', str(user.key().id()))
 
-    def logout(self):
+    def logout_user(self):
         self.response.headers.add_header('Set-Cookie', 'user_id=; Path=/')
+
+    def get_loggedin_user(self):
+        return self.read_secure_cookie('user_id')
+
 
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
-        uid = self.read_secure_cookie('user_id')
+        uid = self.get_loggedin_user()
         self.user = uid and User.by_id(int(uid))
+        print(self.user)
+    def render_user(self,template):
+        self.render(template,user=self.user)
+
 
 
 class MainPage(Handler):
     def get(self):
-        self.render('index.html')
+        self.render_user('index.html')
 
 
 class RegisterHandler(Handler):
     def get(self):
-        val = self.read_secure_cookie('user_id')
-        if val:
+        if self.user:
             self.redirect('/welcome')
         self.render("register.html")
 
@@ -175,39 +147,50 @@ class RegisterHandler(Handler):
             u = User.register(self.firstname, self.lastname,
                               self.password, self.email)
             u.put()
-            self.login(u)
+            self.login_user(u)
             self.redirect("/welcome")
 
 
 class LoginHandler(Handler):
     def get(self):
-        self.render('login.html')
-
+        if not self.user:
+            self.render('login.html')
+        else:
+            self.redirect('/welcome')
     def post(self):
         self.write('Login Handler-POST')
 
 
 class LogoutHandler(Handler):
     def get(self):
-        self.render('logout.html')
+        if self.user:
+            self.render_user('logout.html')
 
     def post(self):
-        self.write('Logout Handler - POST')
+        if self.user:
+            self.logout_user()
+            self.redirect('/')
+        else:
+            self.redirect('/login')
+
 
 
 class PostsHandler(Handler):
     def get(self):
-        self.render('posts.html')
+        self.render_user('posts.html')
 
 
 class PostHandler(Handler):
     def get(self, post_id):
-        self.render("post.html")
+        self.render_user("post.html")
 
 
 class NewPostHandler(Handler):
     def get(self):
-        self.render('newpost.html')
+        if self.user:
+            self.render_user('newpost.html')
+        else:
+            self.redirect('/login')
 
     def post(self):
         self.write('Add a new POST')
@@ -215,16 +198,18 @@ class NewPostHandler(Handler):
 
 class WelcomePageHandler(Handler):
     def get(self):
-        uid = self.read_secure_cookie('user_id')
-        if uid:
-            user = User.by_id(int(uid))
-            self.render('welcome.html', user = user)
+        if self.user:
+            self.render_user('welcome.html')
         else:
             self.redirect('/login')
 
 class EditPostHandler(Handler):
     def get(self, post_id):
-        self.render('editpost.html')
+        if not self.user:
+            self.redirect('/login')
+        else:
+            self.render_user('editpost.html')
+
 
     def post(self, post_id):
         self.write('Edit post Handler - POST %s' % post_id)
@@ -232,7 +217,8 @@ class EditPostHandler(Handler):
 
 class DeletePostHandler(Handler):
     def get(self, post_id):
-        self.render("delete.html")
+        if self.user:
+            self.render_user("delete.html")
 
     def post(self, post_id):
         self.write('delete post handler - POST %s' % post_id)
