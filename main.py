@@ -19,13 +19,12 @@ import re
 
 from google.appengine.ext import db
 
-from cookielib import encrypt_cookie_value,decrypt_cookie_value
-from passwordlib import make_pw_hash,verify_pw_hash
+from cookielib import encrypt_cookie_value, decrypt_cookie_value
+from passwordlib import make_pw_hash, verify_pw_hash
 
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
-
 
 
 class User(db.Model):
@@ -34,7 +33,6 @@ class User(db.Model):
     joined = db.DateTimeProperty(auto_now_add=True)
     email = db.StringProperty(required=True)
     pass_hash = db.TextProperty(required=True)
-
 
     @classmethod
     def by_id(cls, uid):
@@ -89,15 +87,13 @@ class Handler(webapp2.RequestHandler):
     def get_loggedin_user(self):
         return self.read_secure_cookie('user_id')
 
-
     def initialize(self, *a, **kw):
         webapp2.RequestHandler.initialize(self, *a, **kw)
         uid = self.get_loggedin_user()
         self.user = uid and User.by_id(int(uid))
-        print(self.user)
-    def render_user(self,template):
-        self.render(template,user=self.user)
 
+    def render_user(self, template):
+        self.render(template, user=self.user)
 
 
 class MainPage(Handler):
@@ -157,6 +153,7 @@ class LoginHandler(Handler):
             self.render('login.html')
         else:
             self.redirect('/welcome')
+
     def post(self):
         self.write('Login Handler-POST')
 
@@ -172,7 +169,6 @@ class LogoutHandler(Handler):
             self.redirect('/')
         else:
             self.redirect('/login')
-
 
 
 class PostsHandler(Handler):
@@ -203,13 +199,13 @@ class WelcomePageHandler(Handler):
         else:
             self.redirect('/login')
 
+
 class EditPostHandler(Handler):
     def get(self, post_id):
         if not self.user:
             self.redirect('/login')
         else:
             self.render_user('editpost.html')
-
 
     def post(self, post_id):
         self.write('Edit post Handler - POST %s' % post_id)
