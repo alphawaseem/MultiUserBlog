@@ -45,7 +45,8 @@
             <h5>The Blog for Full-Stack Developers</h5>
             </a>
             {% if user %}
-            <a href="/logout" class="w3-btn w3-right"> Logout </a>
+            <h4>{{user.firstname}}'s  Blog <a href="/logout" class="w3-btn w3-right"> Logout </a> </h4>
+            
             
             {% else %}
             <a href="/login" class="w3-btn w3-right w3-white w3-text-teal"> Login </a>

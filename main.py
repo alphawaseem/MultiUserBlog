@@ -51,7 +51,7 @@ class User(db.Model):
                     email=email)
 
     @classmethod
-    def login(cls, email, pw):
+    def verify_user(cls, email, pw):
         u = cls.by_email(email)
         if u and verify_pw_hash(email, pw, u.pass_hash):
             return u
@@ -155,13 +155,25 @@ class LoginHandler(Handler):
             self.redirect('/welcome')
 
     def post(self):
-        self.write('Login Handler-POST')
-
+        email = self.request.get('email')
+        password = self.request.get('password')
+        if email and password:
+            user = User.verify_user(email,password)
+            if user:
+                self.login_user(user)
+                self.redirect('/welcome')
+                return
+        params = dict(email=email,password = password)
+        params['errors'] = 'Invalid email or password'
+        self.render('login.html',**params)
+        
 
 class LogoutHandler(Handler):
     def get(self):
         if self.user:
             self.render_user('logout.html')
+        else:
+            self.redirect('/login')
 
     def post(self):
         if self.user:

@@ -4,8 +4,11 @@
         <div class="w3-container w3-teal">
             <h2>Login Form</h2>
         </div>
+        <div class="w3-text-red">
+            <p>{{errors}}</p>
+        </div>
         <form class="w3-container w3-padding" method="POST">
-            <label class="w3-text-teal" for="email"><b>Email</b> : <input id="email" name="email" class="w3-input w3-border w3-light-grey" type="email" required="required" ></label>
+            <label class="w3-text-teal" for="email"><b>Email</b> : <input id="email" name="email" class="w3-input w3-border w3-light-grey" type="email" required="required" value="{{email}}"></label>
             <label class="w3-text-teal" for="password"><b>Password</b> : <input id="password" name="password" class="w3-input w3-border w3-light-grey" type="password" required="required" ></label>
             <label class="w3-text-teal" for="remember">Remember Me <input id="remember"  name="remember" class="w3-check" type="checkbox" checked="checked"></label>
             <input type="submit" class="w3-btn w3-teal w3-margin" value="Login">
