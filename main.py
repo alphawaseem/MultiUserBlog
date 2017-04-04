@@ -17,44 +17,16 @@ import os
 import jinja2
 import re
 
-from google.appengine.ext import db
 
 from cookielib import encrypt_cookie_value, decrypt_cookie_value
 from passwordlib import make_pw_hash, verify_pw_hash
-
+from models import User,Post
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 
-class User(db.Model):
-    firstname = db.StringProperty(required=True)
-    lastname = db.StringProperty(required=True)
-    joined = db.DateTimeProperty(auto_now_add=True)
-    email = db.StringProperty(required=True)
-    pass_hash = db.TextProperty(required=True)
 
-    @classmethod
-    def by_id(cls, uid):
-        return User.get_by_id(uid)
-
-    @classmethod
-    def by_email(cls, email):
-        user = User.all().filter('email =', email).get()
-        return user
-
-    @classmethod
-    def register(cls, firstname, lastname, pw, email):
-        pw_hash = make_pw_hash(email, pw)
-        return User(firstname=firstname, lastname=lastname,
-                    pass_hash=pw_hash,
-                    email=email)
-
-    @classmethod
-    def verify_user(cls, email, pw):
-        u = cls.by_email(email)
-        if u and verify_pw_hash(email, pw, u.pass_hash):
-            return u
 
 
 class Handler(webapp2.RequestHandler):
@@ -190,7 +162,11 @@ class PostsHandler(Handler):
 
 class PostHandler(Handler):
     def get(self, post_id):
-        self.render_user("post.html")
+        print(post_id)
+        post = Post.get_by_id(int(post_id))
+        belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
+        print(belongs_to_user)
+        self.render("post.html",user=self.user,post=post,belongs_to_user = belongs_to_user)
 
 
 class NewPostHandler(Handler):
@@ -201,7 +177,17 @@ class NewPostHandler(Handler):
             self.redirect('/login')
 
     def post(self):
-        self.write('Add a new POST')
+        if self.user:
+            title = self.request.get('title')
+            content = self.request.get('content')
+            if title and content:
+                post = Post.add_post(title=title,content=content,user_id = self.get_loggedin_user())
+                post.put()
+                self.redirect('/posts/%s'%post.key().id())
+            else:
+                self.render('newpost.html',user = self.user , title = title , content = content)
+        else:
+            self.redirect('/login')
 
 
 class WelcomePageHandler(Handler):

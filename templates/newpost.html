@@ -9,9 +9,9 @@
             <h2>Add Post</h2>
         </div>
         <form class="w3-container w3-padding w3-card" method="POST">
-            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" required ></label>
+            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" value="{{title}}" required ></label>
             <label class="w3-text-teal" for="content"><b>Content</b> :
-            <textarea id="content" class="w3-input  w3-text-teal post-content" required="required" ></textarea></label>
+            <textarea name="content" id="content" class="w3-input  w3-text-teal post-content" required="required" >{{content}}</textarea></label>
             <input type="submit" class="w3-btn w3-teal w3-margin" value="Post">
         </form>
     </section>
