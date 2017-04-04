@@ -212,10 +212,21 @@ class EditPostHandler(Handler):
         if not self.user:
             self.redirect('/login')
         else:
-            self.render_user('editpost.html')
+            post = Post.get_by_id(int(post_id))
+            self.render('editpost.html',user = self.user,post = post)
 
     def post(self, post_id):
-        self.write('Edit post Handler - POST %s' % post_id)
+        if not self.user:
+            self.redirect('/login')
+        else:
+            title = self.request.get('title')
+            content = self.request.get('content')
+            post = Post.get_by_id(int(post_id))
+            post.title = title
+            post.content = content
+            post.put()
+            self.redirect('/posts/'+post_id)
+                
 
 
 class DeletePostHandler(Handler):
