@@ -19,19 +19,22 @@
         }
         
         body>header {
-            height: 150px;
+            min-height: 150px;
         }
         
         main {
             min-height: 70%;
         }
+        
         .form-center {
             width: 90%;
             margin: 0px 5%;
         }
+        
         .logo {
             text-decoration: none;
         }
+        
         .post-content {
             height: 250px;
         }
@@ -41,18 +44,16 @@
 <body>
     <header class="w3-container w3-teal">
         <div class="w3-rest">
-            <a href="/" class="logo" ><h1>Full-Stack Blog</h1>
-            <h5>The Blog for Full-Stack Developers</h5>
+            <a href="/" class="logo">
+                <h1>Full-Stack Blog</h1>
+                <h5>The Blog for Full-Stack Developers</h5>
             </a>
             {% if user %}
-            <h4>{{user.firstname}}'s  Blog <a href="/logout" class="w3-btn w3-right"> Logout </a> </h4>
-            
-            
-            {% else %}
-            <a href="/login" class="w3-btn w3-right w3-white w3-text-teal"> Login </a>
-            <a href="/register" class="w3-btn w3-right"> Register </a>
-            {% endif %}            
-            
+            <div class="w3-panel">
+                <h4><a href="/welcome">{{user.firstname}}'s  Blog</a> </h4><a href="/logout" class="w3-btn w3-right w3-pink "> Logout </a>                {% else %}
+                <a href="/login" class="w3-btn w3-right w3-white w3-text-teal"> Login </a>
+                <a href="/register" class="w3-btn w3-right w3-blue"> Register </a>
+            </div> {% endif %}
         </div>
     </header>
     <main class="w3-panel">
