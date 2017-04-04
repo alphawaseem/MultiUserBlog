@@ -217,6 +217,9 @@ class EditPostHandler(Handler):
             self.redirect('/login')
         else:
             post = Post.get_by_id(int(post_id))
+            belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
+            if not belongs_to_user:
+                self.redirect('/posts/'+post_id)
             self.render('editpost.html',user = self.user,post = post)
 
     def post(self, post_id):
@@ -225,10 +228,11 @@ class EditPostHandler(Handler):
         else:
             title = self.request.get('title')
             content = self.request.get('content')
-            post = Post.get_by_id(int(post_id))
-            post.title = title
-            post.content = content
-            post.put()
+            if title and content:
+                post = Post.get_by_id(int(post_id))                
+                post.title = title
+                post.content = content
+                post.put()
             self.redirect('/posts/'+post_id)
                 
 
