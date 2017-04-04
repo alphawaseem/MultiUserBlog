@@ -164,9 +164,12 @@ class PostsHandler(Handler):
 class PostHandler(Handler):
     def get(self, post_id):
         post = Post.get_by_id(int(post_id))
-        belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
-        print(belongs_to_user)
-        self.render("post.html",user=self.user,post=post,belongs_to_user = belongs_to_user)
+        if post:
+            belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
+            print(belongs_to_user)
+            self.render("post.html",user=self.user,post=post,belongs_to_user = belongs_to_user)
+        else:
+            self.redirect('/welcome')
 
     def post(self,post_id):
         if self.user:
@@ -232,10 +235,21 @@ class EditPostHandler(Handler):
 class DeletePostHandler(Handler):
     def get(self, post_id):
         if self.user:
-            self.render_user("delete.html")
-
+            post = Post.get_by_id(int(post_id))
+            if post:
+                self.render('delete.html',user = self.user,post = post)
+            else:
+                self.redirect('/welcome')
     def post(self, post_id):
-        self.write('delete post handler - POST %s' % post_id)
+        if self.user:
+            post = Post.get_by_id(int(post_id))
+            if post:
+                Post.delete(post)
+            self.redirect('/welcome')
+        else:
+            self.redirect('/login')
+        
+        
 
 
 app = webapp2.WSGIApplication([
