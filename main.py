@@ -70,7 +70,8 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        self.render_user('index.html')
+        posts = Post.all().order('-added')
+        self.render('index.html',user = self.user,posts = posts)
 
 
 class RegisterHandler(Handler):

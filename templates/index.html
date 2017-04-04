@@ -3,25 +3,22 @@
 <section class="w3-row w3-padding w3-display">
     <section class="w3-twothird w3-container">
         <h2 class="w3-text-teal"> Latest Posts </h2>
-        {% for i in range(10) %}
+        {% for post in posts %}
         <article class="w3-card-4 w3-padding w3-text-teal">
-            <h3> Post title</h3>
-            <p class="w3-text-black">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
-                magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                consequat. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-                aliquip ex ea commodo consequat.
+            <h3> {{post.title}}</h3>
+            <p class="w3-text-black">
+                {{post.content}}
             </p>
             <div class="w3-row w3-text-teal">
                 <div class="w3-col m6 s12">
-                    <p><a href="/posts/{{i}}" class="w5-button w3-btn w3-padding-large w3-white w3-border w3-text-teal"><b>VIEW POST »</b></a></p>
+                    <p><a href="/posts/{{post.key().id()}}" class="w5-button w3-btn w3-padding-large w3-white w3-border w3-text-teal"><b>VIEW POST »</b></a></p>
                 </div>
                 <div class="w3-col m2 w3-hide-small">
-                    <p><span class="w3-padding-large w3-right"><b>Likes  </b> <span class="w3-badge w3-teal">2</span></span>
+                    <p><span class="w3-padding-large w3-right"><b>Likes  </b> <span class="w3-badge w3-teal">{{post.likes if post.likes != None else '0'}}</span></span>
                     </p>
                 </div>
                 <div class="w3-col m4 w3-hide-small">
-                    <p><span class="w3-padding-large w3-right"><b>Comments  </b> <span class="w3-badge w3-teal">2</span></span>
+                    <p><span class="w3-padding-large w3-right"><b>Comments  </b> <span class="w3-badge w3-teal">{{post.comments|length}}</span></span>
                     </p>
                 </div>
             </div>
