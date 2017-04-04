@@ -162,12 +162,19 @@ class PostsHandler(Handler):
 
 class PostHandler(Handler):
     def get(self, post_id):
-        print(post_id)
         post = Post.get_by_id(int(post_id))
         belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
         print(belongs_to_user)
         self.render("post.html",user=self.user,post=post,belongs_to_user = belongs_to_user)
 
+    def post(self,post_id):
+        if self.user:
+            post = Post.like_post(int(post_id))
+            if post.user_id != self.user.key().id():
+                post.put()
+            self.redirect('/posts/'+post_id)
+        else:
+            self.redirect('/login')
 
 class NewPostHandler(Handler):
     def get(self):

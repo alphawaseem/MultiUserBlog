@@ -1,4 +1,4 @@
-{% extends "layout.html" %} {% block title %} Post - {{title}} {% endblock %} {% block content %}
+{% extends "layout.html" %} {% block title %} Post - {{post.title}} {% endblock %} {% block content %}
 <section class="w3-content">
     <article class="w3-card-4">
         <header class="w3-container w3-padding w3-teal">
@@ -10,11 +10,14 @@
         <footer class="w3-container w3-padding w3-teal">
             {% if belongs_to_user %}
             <div class="w3-right">
-                <a href="/posts/8/edit" class="w3-btn w3-green">Edit</a>
+                <a href="/posts/{{post.key().id()}}/edit" class="w3-btn w3-green">Edit</a>
                 <a href="/posts/8/delete" class="w3-btn w3-red">Delete</a>
             </div> {% else %}
-            {{post.likes}} Likes
-            <a href="/posts/8/edit" class="w3-btn w3-green">Like</a> {% endif %}
+            <form method="POST">
+             {% if post.likes %}
+             {{post.likes}} Likes
+             {% endif %}
+            <input type="submit" value="Like" class="w3-btn w3-green"></form> {% endif %}
         </footer>
     </article>
     <section>
