@@ -1,14 +1,12 @@
-{% extends "layout.html" %} {% block title %} Full-Stack Blog - Posts {% endblock %} 
-{% block content %}
+{% extends "layout.html" %} {% block title %} Full-Stack Blog - Posts {% endblock %} {% block content %}
 <section class="w3-row w3-padding w3-display">
     <section class="w3-twothird w3-container">
         <h2 class="w3-text-teal"> Latest Posts </h2>
         {% for post in posts %}
         <article class="w3-card-4 w3-padding w3-text-teal">
             <h3> {{post.title}}</h3>
-            <p class="w3-text-black">
-                {{post.content}}
-            </p>
+            <pre class="w3-text-black">{{post.content}}
+            </pre>
             <div class="w3-row w3-text-teal">
                 <div class="w3-col m6 s12">
                     <p><a href="/posts/{{post.key().id()}}" class="w5-button w3-btn w3-padding-large w3-white w3-border w3-text-teal"><b>VIEW POST »</b></a></p>
@@ -30,23 +28,21 @@
         {% if user %}
         <article class="w3-card w3-padding">
             <div class="w3-container w3-teal">
-            <h2>Add Post</h2>
-        </div>
-        <form class="w3-container w3-padding" action="/posts/new" method="POST">
-            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" required ></label>
-            <label class="w3-text-teal" for="content"><b>Content</b> :
+                <h2>Add Post</h2>
+            </div>
+            <form class="w3-container w3-padding" action="/posts/new" method="POST">
+                <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" required ></label>
+                <label class="w3-text-teal" for="content"><b>Content</b> :
             <textarea id="content" class="w3-input  w3-text-teal post-content" required="required" name="content" >{{content}}</textarea></label>
-            <input type="submit" class="w3-btn w3-teal w3-margin" value="Post">
-        </form>
+                <input type="submit" class="w3-btn w3-teal w3-margin" value="Post">
+            </form>
         </article>
         {% else %}
         <article class="w3-card w3-padding w3-text-teal w3-center">
-
             <h3>Not a member?</h3>
             <a href="/register" class="w3-btn w3-xlarge w3-teal">Register Now</a>
             <h3 class="w3-border-bottom"> And Start Blogging!</h3>
             <a href="/login" class="w3-btn w3-xlarge w3-blue">Login</a>
-            
         </article>
         {% endif %}
     </aside>
