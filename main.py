@@ -70,7 +70,7 @@ class Handler(webapp2.RequestHandler):
 
 class MainPage(Handler):
     def get(self):
-        posts = Post.all().order('-added')
+        posts = Post.all().order('-added').fetch(10)
         self.render('index.html',user = self.user,posts = posts)
 
 
@@ -158,7 +158,8 @@ class LogoutHandler(Handler):
 
 class PostsHandler(Handler):
     def get(self):
-        self.render_user('posts.html')
+        posts = Post.all().order('-added')
+        self.render('posts.html',posts = posts)
 
 
 class PostHandler(Handler):
@@ -250,7 +251,17 @@ class DeletePostHandler(Handler):
             self.redirect('/login')
         
         
-
+class CommentHandler(Handler):
+    def post(self, post_id):
+        if self.user:
+            comment = self.request.get('comment')
+            if comment:
+                post = Post.get_by_id(int(post_id))
+                post.comments.insert(0,comment)
+                post.put()
+            self.redirect('/posts/'+post_id)
+        else:
+            self.redirect('/login')
 
 app = webapp2.WSGIApplication([
     (r'/', MainPage),
@@ -260,6 +271,7 @@ app = webapp2.WSGIApplication([
     (r'/posts', PostsHandler),
     (r'/welcome', WelcomePageHandler),
     (r'/posts/(\d+)/delete', DeletePostHandler),
+    (r'/posts/(\d+)/comment', CommentHandler),
     (r'/posts/new', NewPostHandler),
     (r'/login', LoginHandler),
     (r'/logout', LogoutHandler)
