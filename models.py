@@ -53,4 +53,4 @@ class Post(db.Model):
         return post
     @classmethod
     def user_posts(cls,uid):
-        return Post.all().filter('user_id =',uid)
+        return Post.all().filter('user_id =',uid).order('-added')
