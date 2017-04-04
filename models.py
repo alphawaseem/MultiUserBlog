@@ -51,3 +51,6 @@ class Post(db.Model):
         else:
             post.likes = 1
         return post
+    @classmethod
+    def user_posts(cls,uid):
+        return Post.all().filter('user_id =',uid)

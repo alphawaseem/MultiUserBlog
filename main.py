@@ -201,7 +201,8 @@ class NewPostHandler(Handler):
 class WelcomePageHandler(Handler):
     def get(self):
         if self.user:
-            self.render_user('welcome.html')
+            posts = Post.user_posts(self.get_loggedin_user())
+            self.render('welcome.html',posts = posts, user = self.user)
         else:
             self.redirect('/login')
 
