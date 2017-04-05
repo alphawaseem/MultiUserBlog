@@ -37,18 +37,16 @@ class Post(db.Model):
     user_id = db.StringProperty(required=True)
     added = db.DateTimeProperty(auto_now_add=True)
     comments = db.StringListProperty()
-    likes = db.IntegerProperty()
+    likes = db.StringListProperty()
 
     @classmethod
     def add_post(cls,title,content,user_id):
         return Post(title=title,content=content,user_id = user_id)
     
-    def like_post(self):
+    def like_post(self,user_id):
         post = self
-        if post.likes:
-            post.likes += 1
-        else:
-            post.likes = 1
+        if user_id not in post.likes:
+            post.likes.append(user_id)
         return post
     @classmethod
     def user_posts(cls,uid):

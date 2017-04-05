@@ -12,7 +12,7 @@
                     <p><a href="/posts/{{post.key().id()}}" class="w5-button w3-btn w3-padding-large w3-white w3-border w3-text-teal"><b>VIEW POST »</b></a></p>
                 </div>
                 <div class="w3-col m2 w3-hide-small">
-                    <p><span class="w3-padding-large w3-right"><b>Likes  </b> <span class="w3-badge w3-teal">{{post.likes if post.likes != None else '0'}}</span></span>
+                    <p><span class="w3-padding-large w3-right"><b>Likes  </b> <span class="w3-badge w3-teal">{{post.likes|length}}</span></span>
                     </p>
                 </div>
                 <div class="w3-col m4 w3-hide-small">

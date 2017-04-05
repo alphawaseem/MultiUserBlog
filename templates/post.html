@@ -1,6 +1,10 @@
 {% extends "layout.html" %} {% block title %} Post - {{post.title}} {% endblock %} {% block content %}
 <section class="w3-content">
+    <div class="w3-text-red">
+            {{message}}
+        </div>
     <article class="w3-card-4">
+        
         <header class="w3-container w3-padding w3-teal">
             <h2>{{post.title}}</h2>
         </header>
@@ -14,7 +18,7 @@
                 <a href="/posts/{{post.key().id()}}/delete" class="w3-btn w3-red">Delete</a>
             </div> {% else %}
             <form action="/posts/{{post.key().id()}}/like" method="POST">
-                {% if post.likes %} {{post.likes}} Likes {% endif %}
+                {{post.likes | length}} Likes
                 <input type="submit" value="Like" class="w3-btn w3-green"></form> {% endif %}
         </footer>
     </article>

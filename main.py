@@ -232,7 +232,7 @@ class LikePostHandler(SecurePostHandler):
         message = ''
         self.set_post(post_id)
         if not self.post_belongs_to_user():
-            self.blog_post = self.blog_post.like_post()
+            self.blog_post = self.blog_post.like_post(str(self.user.key().id()))
             self.blog_post.put()
         else:
             message = 'You cannot like your own post!'
