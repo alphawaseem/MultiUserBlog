@@ -1,10 +1,10 @@
-{% extends "layout.html" %} {% block title %} Welcome - {{user.firstname + ' ' + user.lastname}} {% endblock %} {% block content %}
+{% extends "layout.html" %} {% block title %} Welcome - {{user.firstname + ' ' + user.lastname}} {% endblock %} {% block
+content %}
 <section class="w3-text-teal  w3-row-padding">
     <h2 class="w3-margin">Hello, {{user.firstname}} </h2>
     <section class="w3-content w3-col m8">
-        
         <h3>Your Posts</h3>
-        {% for post in posts %}
+        {% if posts %} {% for post in posts %}
         <article class="w3-card-4 w3-padding w3-text-teal">
             <h3> {{post.title}}</h3>
             <p class="w3-text-black">
@@ -24,7 +24,7 @@
                 </div>
             </div>
         </article>
-        {% endfor %}
+        {% endfor %} {% endif %}
     </section>
     <section class="w3-col m4">
         <div class="w3-container w3-teal">
@@ -36,7 +36,6 @@
             <textarea id="content" name="content" class="w3-input  w3-text-teal post-content" required="required" ></textarea></label>
             <input type="submit" class="w3-btn w3-teal w3-margin" value="Post">
         </form>
-
     </section>
 </section>
 {% endblock %}
