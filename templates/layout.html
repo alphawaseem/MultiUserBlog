@@ -48,12 +48,15 @@
                 <h1>Full-Stack Blog</h1>
                 <h5>The Blog for Full-Stack Developers</h5>
             </a>
-            {% if user %}
             <div class="w3-panel">
-                <h4><a href="/welcome">{{user.firstname}}'s  Blog</a> </h4><a href="/logout" class="w3-btn w3-right w3-pink "> Logout </a>                {% else %}
+                <a href="/" class="w3-btn w3-blue">Home</a>
+                <a href="/posts" class="w3-btn w3-green">Posts</a>
+                <a href="/posts/new" class="w3-btn w3-khaki">New Post</a> {% if user %}
+                <a href="/welcome" class="w3-btn w3-indigo">My Posts</a>
+                <a href="/logout" class="w3-btn w3-right w3-pink "> Logout </a> {% else %}
                 <a href="/login" class="w3-btn w3-right w3-white w3-text-teal"> Login </a>
-                <a href="/register" class="w3-btn w3-right w3-blue"> Register </a>
-            </div> {% endif %}
+                <a href="/register" class="w3-btn w3-right w3-blue"> Register </a> {% endif %}
+            </div>
         </div>
     </header>
     <main class="w3-panel">
