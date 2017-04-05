@@ -26,6 +26,7 @@ jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 
+################################# BASE HANDLERS #############################
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -90,6 +91,7 @@ class SecurePostHandler(SecurePagesHandler):
         return False
 
 
+################################# PUBLIC PAGE HANDLERS ###################
 class MainPage(UserCookieHandler):
     def get(self):
         posts = Post.all().order('-added').fetch(10)
@@ -164,15 +166,6 @@ class LoginHandler(UserCookieHandler):
         self.render('login.html', **params)
 
 
-class LogoutHandler(SecurePagesHandler):
-    def get(self):
-        self.render('logout.html', user=self.user)
-
-    def post(self):
-        self.logout_user()
-        self.redirect('/')
-
-
 class PostsHandler(UserCookieHandler):
     def get(self):
         posts = Post.all().order('-added')
@@ -195,20 +188,14 @@ class PostHandler(UserCookieHandler):
                 self.render("post.html", post=post, belongs_to_user=False)
 
 
-class LikePostHandler(SecurePostHandler):
-    def get(self, post_id):
-        self.redirect('/posts/' + post_id)
+############################# SECURE USER PAGE HANDLERS ##################
+class LogoutHandler(SecurePagesHandler):
+    def get(self):
+        self.render('logout.html', user=self.user)
 
-    def post(self, post_id):
-        message = ''
-        self.set_post(post_id)
-        if not self.post_belongs_to_user():
-            self.blog_post = self.blog_post.like_post()
-            self.blog_post.put()
-        else:
-            message = 'You cannot like your own post!'
-        self.render('/post.html', user=self.user, post=self.blog_post,
-                    message=message)
+    def post(self):
+        self.logout_user()
+        self.redirect('/')
 
 
 class NewPostHandler(SecurePagesHandler):
@@ -234,6 +221,23 @@ class WelcomePageHandler(SecurePagesHandler):
         if self.user:
             posts = Post.user_posts(str(self.user.key().id()))
             self.render('welcome.html', posts=posts, user=self.user)
+
+
+###################  SECURE USER WITH BLOG POSTS PAGE HANDLERS ###########
+class LikePostHandler(SecurePostHandler):
+    def get(self, post_id):
+        self.redirect('/posts/' + post_id)
+
+    def post(self, post_id):
+        message = ''
+        self.set_post(post_id)
+        if not self.post_belongs_to_user():
+            self.blog_post = self.blog_post.like_post()
+            self.blog_post.put()
+        else:
+            message = 'You cannot like your own post!'
+        self.render('/post.html', user=self.user, post=self.blog_post,
+                    message=message)
 
 
 class EditPostHandler(SecurePostHandler):
