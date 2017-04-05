@@ -13,7 +13,7 @@
                 <a href="/posts/{{post.key().id()}}/edit" class="w3-btn w3-green">Edit</a>
                 <a href="/posts/{{post.key().id()}}/delete" class="w3-btn w3-red">Delete</a>
             </div> {% else %}
-            <form method="POST">
+            <form action="/posts/{{post.key().id()}}/like" method="POST">
              {% if post.likes %}
              {{post.likes}} Likes
              {% endif %}
