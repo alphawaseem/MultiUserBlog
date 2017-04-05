@@ -242,7 +242,8 @@ class EditPostHandler(SecurePostHandler):
             self.redirect('/posts/' + post_id)
         else:
             error = 'You must provide both title and content!'
-            self.render('editpost.html',error = error,title=title,content = content,user = self.user)
+            self.render('editpost.html', error=error, title=title,
+                        content=content, user=self.user)
 
 
 class DeletePostHandler(SecurePostHandler):
@@ -261,8 +262,9 @@ class DeletePostHandler(SecurePostHandler):
 
 
 class CommentHandler(SecurePostHandler):
-    def get(self,post_id):
-        self.redirect('/posts/'+post_id)
+    def get(self, post_id):
+        self.redirect('/posts/' + post_id)
+
     def post(self, post_id):
         comment = self.get_form_value('comment')
         if comment:
