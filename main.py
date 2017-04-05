@@ -85,7 +85,9 @@ class SecurePostHandler(SecurePagesHandler):
             self.redirect('/welcome')
 
     def post_belongs_to_user(self):
-        return str(self.user.key().id()) == self.blog_post.user_id
+        if self.user and self.blog_post:
+            return str(self.user.key().id()) == self.blog_post.user_id
+        return False
 
 
 class MainPage(UserCookieHandler):
@@ -177,11 +179,20 @@ class PostsHandler(UserCookieHandler):
         self.render('posts.html', posts=posts, user=self.user)
 
 
-class PostHandler(SecurePostHandler):
+class PostHandler(UserCookieHandler):
     def get(self, post_id):
-        self.set_post(post_id)
-        self.render("post.html", user=self.user, post=self.blog_post,
-                    belongs_to_user=self.post_belongs_to_user())
+        post = Post.get_by_id(int(post_id))
+        if not post:
+            if self.user:
+                self.redirect('/welcome')
+            else:
+                self.redirect('/')
+        else:
+            if self.user:
+                self.render("post.html", user=self.user, post=post,
+                            belongs_to_user=str(self.user.key().id()) == post.user_id)
+            else:
+                self.render("post.html", post=post, belongs_to_user=False)
 
 
 class LikePostHandler(SecurePostHandler):
