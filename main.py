@@ -220,7 +220,7 @@ class NewPostHandler(SecurePagesHandler):
         content = self.get_form_value('content')
         if title and content:
             post = Post.add_post(
-                title=title, content=content, user_id=self.get_loggedin_user())
+                title=title, content=content, user_id=str(self.user.key().id()))
             post.put()
             self.redirect('/posts/%s' % post.key().id())
         else:
@@ -231,8 +231,9 @@ class NewPostHandler(SecurePagesHandler):
 
 class WelcomePageHandler(SecurePagesHandler):
     def get(self):
-        posts = Post.user_posts(self.get_loggedin_user())
-        self.render('welcome.html', posts=posts, user=self.user)
+        if self.user:
+            posts = Post.user_posts(str(self.user.key().id()))
+            self.render('welcome.html', posts=posts, user=self.user)
 
 
 class EditPostHandler(SecurePostHandler):
@@ -264,7 +265,7 @@ class DeletePostHandler(SecurePostHandler):
         if self.post_belongs_to_user():
             self.render('delete.html', user=self.user, post=self.blog_post)
         else:
-            self.redirect('/posts/'+post_id)
+            self.redirect('/posts/' + post_id)
 
     def post(self, post_id):
         self.set_post(post_id)
