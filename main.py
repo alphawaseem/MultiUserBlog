@@ -20,13 +20,10 @@ import re
 
 from cookielib import encrypt_cookie_value, decrypt_cookie_value
 from passwordlib import make_pw_hash, verify_pw_hash
-from models import User,Post
+from models import User, Post
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
-
-
-
 
 
 class Handler(webapp2.RequestHandler):
@@ -66,15 +63,15 @@ class Handler(webapp2.RequestHandler):
 
     def render_user(self, template):
         self.render(template, user=self.user)
-    
-    def get_form_value(self,field_name):
+
+    def get_form_value(self, field_name):
         return self.request.get(field_name)
 
 
 class MainPage(Handler):
     def get(self):
         posts = Post.all().order('-added').fetch(10)
-        self.render('index.html',user = self.user,posts = posts)
+        self.render('index.html', user=self.user, posts=posts)
 
 
 class RegisterHandler(Handler):
@@ -92,32 +89,32 @@ class RegisterHandler(Handler):
         return p1 == p2
 
     def post(self):
-        self.firstname = self.get_form_value('firstname')
-        self.lastname = self.get_form_value('lastname')
-        self.email = self.get_form_value('email')
-        self.password = self.get_form_value('password')
-        self.password1 = self.get_form_value('password1')
-        self.agree = self.get_form_value('agree')
+        firstname = self.get_form_value('firstname')
+        lastname = self.get_form_value('lastname')
+        email = self.get_form_value('email')
+        password = self.get_form_value('password')
+        password1 = self.get_form_value('password1')
+        agree = self.get_form_value('agree')
 
-        params = dict(firstname=self.firstname,
-                      lastname=self.lastname, email=self.email)
+        params = dict(firstname=firstname,
+                      lastname=lastname, email=email)
         have_error = False
-        if self.email_exists(self.email):
+        if self.email_exists(email):
             params['error_email'] = 'You cannot use this email. It might have already taken!'
             have_error = True
 
-        if not self.password_matched(self.password, self.password1):
+        if not self.password_matched(password, password1):
             params['error_pass_mismatch'] = 'Passwords do not match'
             have_error = True
 
-        if not self.agree:
+        if not agree:
             params['error_agree_terms'] = 'You must agree to terms and conditions of the website.'
             have_error = True
         if have_error:
             self.render('register.html', **params)
         else:
-            u = User.register(self.firstname, self.lastname,
-                              self.password, self.email)
+            u = User.register(firstname, lastname,
+                              password, email)
             u.put()
             self.login_user(u)
             self.redirect("/welcome")
@@ -134,15 +131,15 @@ class LoginHandler(Handler):
         email = self.get_form_value('email')
         password = self.get_form_value('password')
         if email and password:
-            user = User.verify_user(email,password)
+            user = User.verify_user(email, password)
             if user:
                 self.login_user(user)
                 self.redirect('/welcome')
                 return
-        params = dict(email=email,password = password)
+        params = dict(email=email, password=password)
         params['errors'] = 'Invalid email or password'
-        self.render('login.html',**params)
-        
+        self.render('login.html', **params)
+
 
 class LogoutHandler(Handler):
     def get(self):
@@ -162,27 +159,30 @@ class LogoutHandler(Handler):
 class PostsHandler(Handler):
     def get(self):
         posts = Post.all().order('-added')
-        self.render('posts.html',posts = posts)
+        self.render('posts.html', posts=posts)
 
 
 class PostHandler(Handler):
     def get(self, post_id):
         post = Post.get_by_id(int(post_id))
         if post:
-            belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
+            belongs_to_user = self.user and (
+                str(self.user.key().id()) == post.user_id)
             print(belongs_to_user)
-            self.render("post.html",user=self.user,post=post,belongs_to_user = belongs_to_user)
+            self.render("post.html", user=self.user, post=post,
+                        belongs_to_user=belongs_to_user)
         else:
             self.redirect('/welcome')
 
-    def post(self,post_id):
+    def post(self, post_id):
         if self.user:
             post = Post.like_post(int(post_id))
             if post.user_id != self.user.key().id():
                 post.put()
-            self.redirect('/posts/'+post_id)
+            self.redirect('/posts/' + post_id)
         else:
             self.redirect('/login')
+
 
 class NewPostHandler(Handler):
     def get(self):
@@ -196,11 +196,13 @@ class NewPostHandler(Handler):
             title = self.get_form_value('title')
             content = self.get_form_value('content')
             if title and content:
-                post = Post.add_post(title=title,content=content,user_id = self.get_loggedin_user())
+                post = Post.add_post(
+                    title=title, content=content, user_id=self.get_loggedin_user())
                 post.put()
-                self.redirect('/posts/%s'%post.key().id())
+                self.redirect('/posts/%s' % post.key().id())
             else:
-                self.render('newpost.html',user = self.user , title = title , content = content)
+                self.render('newpost.html', user=self.user,
+                            title=title, content=content)
         else:
             self.redirect('/login')
 
@@ -209,7 +211,7 @@ class WelcomePageHandler(Handler):
     def get(self):
         if self.user:
             posts = Post.user_posts(self.get_loggedin_user())
-            self.render('welcome.html',posts = posts, user = self.user)
+            self.render('welcome.html', posts=posts, user=self.user)
         else:
             self.redirect('/login')
 
@@ -220,10 +222,11 @@ class EditPostHandler(Handler):
             self.redirect('/login')
         else:
             post = Post.get_by_id(int(post_id))
-            belongs_to_user = self.user and (str(self.user.key().id()) == post.user_id)
+            belongs_to_user = self.user and (
+                str(self.user.key().id()) == post.user_id)
             if not belongs_to_user:
-                self.redirect('/posts/'+post_id)
-            self.render('editpost.html',user = self.user,post = post)
+                self.redirect('/posts/' + post_id)
+            self.render('editpost.html', user=self.user, post=post)
 
     def post(self, post_id):
         if not self.user:
@@ -232,12 +235,11 @@ class EditPostHandler(Handler):
             title = self.get_form_value('title')
             content = self.get_form_value('content')
             if title and content:
-                post = Post.get_by_id(int(post_id))                
+                post = Post.get_by_id(int(post_id))
                 post.title = title
                 post.content = content
                 post.put()
-            self.redirect('/posts/'+post_id)
-                
+            self.redirect('/posts/' + post_id)
 
 
 class DeletePostHandler(Handler):
@@ -245,9 +247,10 @@ class DeletePostHandler(Handler):
         if self.user:
             post = Post.get_by_id(int(post_id))
             if post:
-                self.render('delete.html',user = self.user,post = post)
+                self.render('delete.html', user=self.user, post=post)
             else:
                 self.redirect('/welcome')
+
     def post(self, post_id):
         if self.user:
             post = Post.get_by_id(int(post_id))
@@ -256,19 +259,20 @@ class DeletePostHandler(Handler):
             self.redirect('/welcome')
         else:
             self.redirect('/login')
-        
-        
+
+
 class CommentHandler(Handler):
     def post(self, post_id):
         if self.user:
             comment = self.get_form_value('comment')
             if comment:
                 post = Post.get_by_id(int(post_id))
-                post.comments.insert(0,comment)
+                post.comments.insert(0, comment)
                 post.put()
-            self.redirect('/posts/'+post_id)
+            self.redirect('/posts/' + post_id)
         else:
             self.redirect('/login')
+
 
 app = webapp2.WSGIApplication([
     (r'/', MainPage),
