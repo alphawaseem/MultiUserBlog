@@ -5,11 +5,14 @@
     
 <section class="w3-row-padding">
     <section class="w3-col form-center ">
+        <div class="w3-text-red">
+            {{error}}
+        </div>
         <div class="w3-container w3-teal">
             <h2>Edit Post</h2>
         </div>
         <form class="w3-container w3-padding w3-card" method="POST">
-            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" value="{{post.title}}" required ></label>
+            <label class="w3-text-teal" for="title"><b>Title</b> : <input id="title" name="title" class="w3-input" type="text" value="{{post.title}}" required="required" ></label>
             <label class="w3-text-teal" for="content"><b>Content</b> :
             <textarea id="content" name="content" class="w3-input  w3-text-teal post-content" required="required" >{{post.content}}</textarea></label>
             <input type="submit" class="w3-btn w3-teal w3-margin" value="Save">

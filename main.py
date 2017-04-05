@@ -37,6 +37,11 @@ class Handler(webapp2.RequestHandler):
     def render(self, template, **kw):
         self.write(self.render_str(template, **kw))
 
+    def get_form_value(self, field_name):
+        return self.request.get(field_name)
+
+
+class CookieHandler(Handler):
     def set_secure_cookie(self, name, val):
         cookie_val = encrypt_cookie_value(val)
         self.response.headers.add_header(
@@ -47,6 +52,8 @@ class Handler(webapp2.RequestHandler):
         cookie_val = self.request.cookies.get(name)
         return cookie_val and decrypt_cookie_value(cookie_val)
 
+
+class UserCookieHandler(CookieHandler):
     def login_user(self, user):
         self.set_secure_cookie('user_id', str(user.key().id()))
 
@@ -61,20 +68,33 @@ class Handler(webapp2.RequestHandler):
         uid = self.get_loggedin_user()
         self.user = uid and User.by_id(int(uid))
 
-    def render_user(self, template):
-        self.render(template, user=self.user)
 
-    def get_form_value(self, field_name):
-        return self.request.get(field_name)
+class SecurePagesHandler(UserCookieHandler):
+    def initialize(self, *a, **kw):
+        super(SecurePagesHandler, self).initialize(*a, **kw)
+        if not self.user:
+            self.redirect('/login')
 
 
-class MainPage(Handler):
+class SecurePostHandler(SecurePagesHandler):
+    def set_post(self, post_id):
+        self.blog_post = Post.get_by_id(int(post_id))
+        if self.blog_post:
+            return self.blog_post
+        else:
+            self.redirect('/welcome')
+
+    def post_belongs_to_user(self):
+        return str(self.user.key().id()) == self.blog_post.user_id
+
+
+class MainPage(UserCookieHandler):
     def get(self):
         posts = Post.all().order('-added').fetch(10)
         self.render('index.html', user=self.user, posts=posts)
 
 
-class RegisterHandler(Handler):
+class RegisterHandler(UserCookieHandler):
     def get(self):
         if self.user:
             self.redirect('/welcome')
@@ -120,7 +140,7 @@ class RegisterHandler(Handler):
             self.redirect("/welcome")
 
 
-class LoginHandler(Handler):
+class LoginHandler(UserCookieHandler):
     def get(self):
         if not self.user:
             self.render('login.html')
@@ -141,137 +161,115 @@ class LoginHandler(Handler):
         self.render('login.html', **params)
 
 
-class LogoutHandler(Handler):
+class LogoutHandler(SecurePagesHandler):
     def get(self):
-        if self.user:
-            self.render_user('logout.html')
-        else:
-            self.redirect('/login')
+        self.render('logout.html')
 
     def post(self):
-        if self.user:
-            self.logout_user()
-            self.redirect('/')
-        else:
-            self.redirect('/login')
+        self.logout_user()
+        self.redirect('/')
 
 
-class PostsHandler(Handler):
+class PostsHandler(UserCookieHandler):
     def get(self):
         posts = Post.all().order('-added')
         self.render('posts.html', posts=posts)
 
 
-class PostHandler(Handler):
+class PostHandler(SecurePostHandler):
     def get(self, post_id):
-        post = Post.get_by_id(int(post_id))
-        if post:
-            belongs_to_user = self.user and (
-                str(self.user.key().id()) == post.user_id)
-            print(belongs_to_user)
-            self.render("post.html", user=self.user, post=post,
-                        belongs_to_user=belongs_to_user)
-        else:
-            self.redirect('/welcome')
+        self.set_post(post_id)
+        self.render("post.html", user=self.user, post=self.blog_post,
+                    belongs_to_user=self.post_belongs_to_user())
+
+
+class LikePostHandler(SecurePostHandler):
+    def get(self, post_id):
+        self.redirect('/posts/' + post_id)
 
     def post(self, post_id):
-        if self.user:
-            post = Post.like_post(int(post_id))
-            if post.user_id != self.user.key().id():
-                post.put()
-            self.redirect('/posts/' + post_id)
+        message = ''
+        self.set_post(post_id)
+        if not self.post_belongs_to_user():
+            self.blog_post = self.blog_post.like_post()
+            self.blog_post.put()
         else:
-            self.redirect('/login')
+            message = 'You cannot like your own post!'
+        self.render('/post.html', user=self.user, post=self.blog_post,
+                    message=message)
 
 
-class NewPostHandler(Handler):
+class NewPostHandler(SecurePagesHandler):
     def get(self):
-        if self.user:
-            self.render_user('newpost.html')
-        else:
-            self.redirect('/login')
+        self.render('newpost.html', user=self.user)
 
     def post(self):
-        if self.user:
-            title = self.get_form_value('title')
-            content = self.get_form_value('content')
-            if title and content:
-                post = Post.add_post(
-                    title=title, content=content, user_id=self.get_loggedin_user())
-                post.put()
-                self.redirect('/posts/%s' % post.key().id())
-            else:
-                self.render('newpost.html', user=self.user,
-                            title=title, content=content)
+        title = self.get_form_value('title')
+        content = self.get_form_value('content')
+        if title and content:
+            post = Post.add_post(
+                title=title, content=content, user_id=self.get_loggedin_user())
+            post.put()
+            self.redirect('/posts/%s' % post.key().id())
         else:
-            self.redirect('/login')
+            error = 'Please enter both title and content'
+            self.render('newpost.html', user=self.user,
+                        title=title, content=content, error=error)
 
 
-class WelcomePageHandler(Handler):
+class WelcomePageHandler(SecurePagesHandler):
     def get(self):
-        if self.user:
-            posts = Post.user_posts(self.get_loggedin_user())
-            self.render('welcome.html', posts=posts, user=self.user)
-        else:
-            self.redirect('/login')
+        posts = Post.user_posts(self.get_loggedin_user())
+        self.render('welcome.html', posts=posts, user=self.user)
 
 
-class EditPostHandler(Handler):
+class EditPostHandler(SecurePostHandler):
     def get(self, post_id):
-        if not self.user:
-            self.redirect('/login')
-        else:
-            post = Post.get_by_id(int(post_id))
-            belongs_to_user = self.user and (
-                str(self.user.key().id()) == post.user_id)
-            if not belongs_to_user:
-                self.redirect('/posts/' + post_id)
-            self.render('editpost.html', user=self.user, post=post)
-
-    def post(self, post_id):
-        if not self.user:
-            self.redirect('/login')
-        else:
-            title = self.get_form_value('title')
-            content = self.get_form_value('content')
-            if title and content:
-                post = Post.get_by_id(int(post_id))
-                post.title = title
-                post.content = content
-                post.put()
+        self.set_post(post_id)
+        if not self.post_belongs_to_user():
             self.redirect('/posts/' + post_id)
-
-
-class DeletePostHandler(Handler):
-    def get(self, post_id):
-        if self.user:
-            post = Post.get_by_id(int(post_id))
-            if post:
-                self.render('delete.html', user=self.user, post=post)
-            else:
-                self.redirect('/welcome')
+        self.render('editpost.html', user=self.user, post=self.blog_post)
 
     def post(self, post_id):
-        if self.user:
-            post = Post.get_by_id(int(post_id))
-            if post:
-                Post.delete(post)
+        title = self.get_form_value('title')
+        content = self.get_form_value('content')
+        if title and content:
+            self.set_post(post_id)
+            if self.post_belongs_to_user():
+                self.blog_post.title = title
+                self.blog_post.content = content
+                self.blog_post.put()
+            self.redirect('/posts/' + post_id)
+        else:
+            error = 'You must provide both title and content!'
+            self.render('editpost.html',error = error,title=title,content = content,user = self.user)
+
+
+class DeletePostHandler(SecurePostHandler):
+    def get(self, post_id):
+        self.set_post(post_id)
+        if self.post_belongs_to_user():
+            self.render('delete.html', user=self.user, post=post)
+        else:
             self.redirect('/welcome')
-        else:
-            self.redirect('/login')
 
-
-class CommentHandler(Handler):
     def post(self, post_id):
-        if self.user:
-            comment = self.get_form_value('comment')
-            if comment:
-                post = Post.get_by_id(int(post_id))
-                post.comments.insert(0, comment)
-                post.put()
-            self.redirect('/posts/' + post_id)
-        else:
-            self.redirect('/login')
+        self.set_post(post_id)
+        if self.post_belongs_to_user():
+            Post.delete(self.blog_post)
+        self.redirect('/welcome')
+
+
+class CommentHandler(SecurePostHandler):
+    def get(self,post_id):
+        self.redirect('/posts/'+post_id)
+    def post(self, post_id):
+        comment = self.get_form_value('comment')
+        if comment:
+            self.set_post(post_id)
+            self.blog_post.comments.insert(0, comment)
+            self.blog_post.put()
+        self.redirect('/posts/' + post_id)
 
 
 app = webapp2.WSGIApplication([
@@ -283,6 +281,7 @@ app = webapp2.WSGIApplication([
     (r'/welcome', WelcomePageHandler),
     (r'/posts/(\d+)/delete', DeletePostHandler),
     (r'/posts/(\d+)/comment', CommentHandler),
+    (r'/posts/(\d+)/like', LikePostHandler),
     (r'/posts/new', NewPostHandler),
     (r'/login', LoginHandler),
     (r'/logout', LogoutHandler)

@@ -43,9 +43,8 @@ class Post(db.Model):
     def add_post(cls,title,content,user_id):
         return Post(title=title,content=content,user_id = user_id)
     
-    @classmethod
-    def like_post(cls,post_id):
-        post = Post.get_by_id(post_id)
+    def like_post(self):
+        post = self
         if post.likes:
             post.likes += 1
         else:
