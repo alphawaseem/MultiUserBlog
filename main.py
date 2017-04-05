@@ -262,9 +262,9 @@ class DeletePostHandler(SecurePostHandler):
     def get(self, post_id):
         self.set_post(post_id)
         if self.post_belongs_to_user():
-            self.render('delete.html', user=self.user, post=post)
+            self.render('delete.html', user=self.user, post=self.blog_post)
         else:
-            self.redirect('/welcome')
+            self.redirect('/posts/'+post_id)
 
     def post(self, post_id):
         self.set_post(post_id)
