@@ -109,35 +109,36 @@ class RegisterHandler(UserCookieHandler):
         return p1 == p2
 
     def post(self):
-        firstname = self.get_form_value('firstname')
-        lastname = self.get_form_value('lastname')
-        email = self.get_form_value('email')
-        password = self.get_form_value('password')
-        password1 = self.get_form_value('password1')
-        agree = self.get_form_value('agree')
+        if not self.user:
+            firstname = self.get_form_value('firstname')
+            lastname = self.get_form_value('lastname')
+            email = self.get_form_value('email')
+            password = self.get_form_value('password')
+            password1 = self.get_form_value('password1')
+            agree = self.get_form_value('agree')
 
-        params = dict(firstname=firstname,
-                      lastname=lastname, email=email)
-        have_error = False
-        if self.email_exists(email):
-            params['error_email'] = 'You cannot use this email. It might have already taken!'
-            have_error = True
+            params = dict(firstname=firstname,
+                          lastname=lastname, email=email)
+            have_error = False
+            if self.email_exists(email):
+                params['error_email'] = 'You cannot use this email. It might have already taken!'
+                have_error = True
 
-        if not self.password_matched(password, password1):
-            params['error_pass_mismatch'] = 'Passwords do not match'
-            have_error = True
+            if not self.password_matched(password, password1):
+                params['error_pass_mismatch'] = 'Passwords do not match'
+                have_error = True
 
-        if not agree:
-            params['error_agree_terms'] = 'You must agree to terms and conditions of the website.'
-            have_error = True
-        if have_error:
-            self.render('register.html', **params)
-        else:
-            u = User.register(firstname, lastname,
-                              password, email)
-            u.put()
-            self.login_user(u)
-            self.redirect("/welcome")
+            if not agree:
+                params['error_agree_terms'] = 'You must agree to terms and conditions of the website.'
+                have_error = True
+            if have_error:
+                self.render('register.html', **params)
+            else:
+                u = User.register(firstname, lastname,
+                                  password, email)
+                u.put()
+                self.login_user(u)
+                self.redirect("/welcome")
 
 
 class LoginHandler(UserCookieHandler):
@@ -163,7 +164,7 @@ class LoginHandler(UserCookieHandler):
 
 class LogoutHandler(SecurePagesHandler):
     def get(self):
-        self.render('logout.html')
+        self.render('logout.html', user=self.user)
 
     def post(self):
         self.logout_user()
@@ -173,7 +174,7 @@ class LogoutHandler(SecurePagesHandler):
 class PostsHandler(UserCookieHandler):
     def get(self):
         posts = Post.all().order('-added')
-        self.render('posts.html', posts=posts)
+        self.render('posts.html', posts=posts, user=self.user)
 
 
 class PostHandler(SecurePostHandler):
