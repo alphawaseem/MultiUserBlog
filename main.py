@@ -66,6 +66,9 @@ class Handler(webapp2.RequestHandler):
 
     def render_user(self, template):
         self.render(template, user=self.user)
+    
+    def get_form_value(self,field_name):
+        return self.request.get(field_name)
 
 
 class MainPage(Handler):
@@ -89,12 +92,12 @@ class RegisterHandler(Handler):
         return p1 == p2
 
     def post(self):
-        self.firstname = self.request.get('firstname')
-        self.lastname = self.request.get('lastname')
-        self.email = self.request.get('email')
-        self.password = self.request.get('password')
-        self.password1 = self.request.get('password1')
-        self.agree = self.request.get('agree')
+        self.firstname = self.get_form_value('firstname')
+        self.lastname = self.get_form_value('lastname')
+        self.email = self.get_form_value('email')
+        self.password = self.get_form_value('password')
+        self.password1 = self.get_form_value('password1')
+        self.agree = self.get_form_value('agree')
 
         params = dict(firstname=self.firstname,
                       lastname=self.lastname, email=self.email)
@@ -128,8 +131,8 @@ class LoginHandler(Handler):
             self.redirect('/welcome')
 
     def post(self):
-        email = self.request.get('email')
-        password = self.request.get('password')
+        email = self.get_form_value('email')
+        password = self.get_form_value('password')
         if email and password:
             user = User.verify_user(email,password)
             if user:
@@ -190,8 +193,8 @@ class NewPostHandler(Handler):
 
     def post(self):
         if self.user:
-            title = self.request.get('title')
-            content = self.request.get('content')
+            title = self.get_form_value('title')
+            content = self.get_form_value('content')
             if title and content:
                 post = Post.add_post(title=title,content=content,user_id = self.get_loggedin_user())
                 post.put()
@@ -226,8 +229,8 @@ class EditPostHandler(Handler):
         if not self.user:
             self.redirect('/login')
         else:
-            title = self.request.get('title')
-            content = self.request.get('content')
+            title = self.get_form_value('title')
+            content = self.get_form_value('content')
             if title and content:
                 post = Post.get_by_id(int(post_id))                
                 post.title = title
@@ -258,7 +261,7 @@ class DeletePostHandler(Handler):
 class CommentHandler(Handler):
     def post(self, post_id):
         if self.user:
-            comment = self.request.get('comment')
+            comment = self.get_form_value('comment')
             if comment:
                 post = Post.get_by_id(int(post_id))
                 post.comments.insert(0,comment)
