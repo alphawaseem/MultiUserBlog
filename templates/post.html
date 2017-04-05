@@ -14,17 +14,14 @@
                 <a href="/posts/{{post.key().id()}}/delete" class="w3-btn w3-red">Delete</a>
             </div> {% else %}
             <form action="/posts/{{post.key().id()}}/like" method="POST">
-             {% if post.likes %}
-             {{post.likes}} Likes
-             {% endif %}
-            <input type="submit" value="Like" class="w3-btn w3-green"></form> {% endif %}
+                {% if post.likes %} {{post.likes}} Likes {% endif %}
+                <input type="submit" value="Like" class="w3-btn w3-green"></form> {% endif %}
         </footer>
     </article>
     <section class="w3-panel">
         <form action="/posts/{{post.key().id()}}/comment" method="POST">
-           <label for="comment"> Add a comment</label>
-            <textarea class="w3-input w3-text-teal" name="comment" id="comment"  > 
-       </textarea>
+            <label for="comment"> Add a comment</label>
+            <textarea class="w3-input w3-text-teal" name="comment" id="comment"></textarea>
             <input type="submit" value="Post" class="w3-btn w3-teal w3-margin">
         </form>
     </section>

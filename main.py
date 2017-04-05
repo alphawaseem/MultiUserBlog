@@ -278,12 +278,15 @@ class CommentHandler(SecurePostHandler):
         self.redirect('/posts/' + post_id)
 
     def post(self, post_id):
-        comment = self.get_form_value('comment')
-        if comment:
-            self.set_post(post_id)
-            self.blog_post.comments.insert(0, comment)
-            self.blog_post.put()
-        self.redirect('/posts/' + post_id)
+        if self.user:
+            comment = self.get_form_value('comment')
+            if comment:
+                self.set_post(post_id)
+                self.blog_post.comments.insert(0, comment)
+                self.blog_post.put()
+            self.redirect('/posts/' + post_id)
+        else:
+            self.redirect('/login')
 
 
 app = webapp2.WSGIApplication([
