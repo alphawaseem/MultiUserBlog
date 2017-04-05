@@ -231,7 +231,7 @@ class LikePostHandler(SecurePostHandler):
     def post(self, post_id):
         message = ''
         self.set_post(post_id)
-        if not self.post_belongs_to_user():
+        if not self.post_belongs_to_user() and self.user:
             self.blog_post = self.blog_post.like_post(str(self.user.key().id()))
             self.blog_post.put()
         else:
@@ -245,7 +245,8 @@ class EditPostHandler(SecurePostHandler):
         self.set_post(post_id)
         if not self.post_belongs_to_user():
             self.redirect('/posts/' + post_id)
-        self.render('editpost.html', user=self.user, post=self.blog_post)
+        if self.user and self.blog_post:
+            self.render('editpost.html', user=self.user, post=self.blog_post)
 
     def post(self, post_id):
         title = self.get_form_value('title')
