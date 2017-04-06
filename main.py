@@ -237,7 +237,7 @@ class LikePostHandler(SecurePostHandler):
             self.blog_post = self.blog_post.like_post(
                 str(self.user.key().id()))
             self.blog_post.put()
-            self.redirect('/posts/'+post_id)
+            self.redirect('/posts/' + post_id)
         else:
             message = 'You cannot like your own post!'
         self.render('/post.html', user=self.user, post=self.blog_post,
@@ -302,6 +302,18 @@ class CommentHandler(SecurePostHandler):
 
 
 class DeleteCommentHandler(SecurePostHandler):
+    def get(self, post_id, comment_id):
+        self.set_post(post_id)
+        if self.post_belongs_to_user():
+            comment = Comment.get_by_id(int(comment_id))
+            if comment:
+                self.render('deletecomment.html',
+                            user=self.user, comment=comment)
+            else:
+                self.redirect('/posts/' + post_id)
+        else:
+            self.redirect('/posts/' + post_id)
+
     def post(self, post_id, comment_id):
         self.set_post(post_id)
         if self.post_belongs_to_user:
@@ -352,7 +364,7 @@ app = webapp2.WSGIApplication([
     (r'/posts/(\d+)/comment', CommentHandler),
     (r'/posts/(\d+)/like', LikePostHandler),
     (r'/posts/(\d+)/(\d+)/edit', EditCommentHandler),
-
+    (r'/posts/(\d+)/(\d+)/delete', DeleteCommentHandler),
     (r'/posts/new', NewPostHandler),
     (r'/login', LoginHandler),
     (r'/logout', LogoutHandler)

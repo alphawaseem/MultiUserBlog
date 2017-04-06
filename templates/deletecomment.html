@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block title %} Are you sure? {% endblock %}
+
+{% block content %}
+
+<section class="w3-center">
+    <h3 class="w3-text-red">Are you sure? You want to delete this comment!</h3>
+    <h4>{{comment.comment}}</h4>
+    <form method="post">
+        <input type="submit" value="Yes!" class="w3-btn w3-red">
+        <a class="w3-btn w3-teal" href="/welcome">No! Take Me Home.</a>
+    </form>
+
+</section>
+
+{% endblock %}

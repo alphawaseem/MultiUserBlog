@@ -40,7 +40,7 @@
             {% if belongs_to_user %}
             <div class="w3-right w3-panel">
                 <a href="/posts/{{post.key().id() if post}}/{{comment.key().id() if comment}}/edit" class="w3-btn w3-khaki">Edit</a>
-                <a href="" class="w3-btn w3-red">Delete</a>
+                <a href="/posts/{{post.key().id() if post}}/{{comment.key().id() if comment}}/delete" class="w3-btn w3-red">Delete</a>
             </div>
             {% endif %}
         </div>
