@@ -301,28 +301,20 @@ class CommentHandler(SecurePostHandler):
             self.redirect('/login')
 
 
-class DeleteCommentHandler(SecurePostHandler):
+class DeleteCommentHandler(SecurePagesHandler):
     def get(self, post_id, comment_id):
-        self.set_post(post_id)
-        if self.post_belongs_to_user():
-            comment = Comment.get_by_id(int(comment_id))
-            if comment:
-                self.render('deletecomment.html',
-                            user=self.user, comment=comment)
-            else:
-                self.redirect('/posts/' + post_id)
+        comment = Comment.get_by_id(int(comment_id))
+        if comment and self.user and str(self.user.key().id()) == comment.user_id:
+            self.render('deletecomment.html',
+                        user=self.user, comment=comment)
         else:
             self.redirect('/posts/' + post_id)
 
     def post(self, post_id, comment_id):
-        self.set_post(post_id)
-        if self.post_belongs_to_user:
-            comment = Comment.get_by_id(int(comment_id))
-            if comment:
-                Comment.delete(comment)
-            self.redirect('/posts/' + post_id)
-        else:
-            self.redirect('/welcome')
+        comment = Comment.get_by_id(int(comment_id))
+        if comment and self.user and str(self.user.key().id()) == comment.user_id:
+            Comment.delete(comment)
+        self.redirect('/posts/' + post_id)
 
 
 class EditCommentHandler(SecurePostHandler):

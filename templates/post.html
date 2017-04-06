@@ -37,7 +37,7 @@
         <div class="w3-panel w3-leftbar w3-light-grey">
             <p class="w3-xlarge w3-serif"><i>"{{comment.comment}}"</i></p>
             <p> -- {{comment.user_name}}</p>
-            {% if belongs_to_user %}
+            {% if user and user.key().id()|string == comment.user_id %}
             <div class="w3-right w3-panel">
                 <a href="/posts/{{post.key().id() if post}}/{{comment.key().id() if comment}}/edit" class="w3-btn w3-khaki">Edit</a>
                 <a href="/posts/{{post.key().id() if post}}/{{comment.key().id() if comment}}/delete" class="w3-btn w3-red">Delete</a>
