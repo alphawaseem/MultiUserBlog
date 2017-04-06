@@ -7,15 +7,11 @@
             <h3> {{post.title}}</h3>
             <pre class="w3-text-black">{{post.content}}</pre> 
             <div class="w3-row w3-text-teal">
-                <div class="w3-col m6 s12">
+                <div class="w3-col m10 s10">
                     <p><a href="/posts/{{post.key().id()}}" class="w5-button w3-btn w3-padding-large w3-white w3-border w3-text-teal"><b>VIEW POST »</b></a></p>
                 </div>
-                <div class="w3-col m2 w3-hide-small">
+                <div class="w3-col m2 s2">
                     <p><span class="w3-padding-large w3-right"><b>Likes  </b> <span class="w3-badge w3-teal">{{post.likes|length}}</span></span>
-                    </p>
-                </div>
-                <div class="w3-col m4 w3-hide-small">
-                    <p><span class="w3-padding-large w3-right"><b>Comments  </b> <span class="w3-badge w3-teal">{{post.comments|length}}</span></span>
                     </p>
                 </div>
             </div>

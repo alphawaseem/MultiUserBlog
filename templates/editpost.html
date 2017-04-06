@@ -16,7 +16,7 @@
             <label class="w3-text-teal" for="content"><b>Content</b> :
             <textarea id="content" name="content" class="w3-input  w3-text-teal post-content" required="required" >{{post.content}}</textarea></label>
             <input type="submit" class="w3-btn w3-teal w3-margin" value="Save">
-            <a href="/posts/{{post.key().id()}}" class="w3-btn w3-red w3-margin">Cancel</a>
+            <a href="/posts/{{post.key().id() if post}}" class="w3-btn w3-red w3-margin">Cancel</a>
             
         </form>
     </section>

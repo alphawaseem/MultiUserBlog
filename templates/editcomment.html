@@ -1,0 +1,18 @@
+{% extends "layout.html" %} {% block title %} Edit : {{post.title}} {% endblock %} {% block content %}
+<section class="w3-row-padding">
+    <section class="w3-col form-center ">
+        <div class="w3-text-red">
+            {{message}}
+        </div>
+        <div class="w3-container w3-teal">
+            <h2>Edit Comment</h2>
+        </div>
+        <form class="w3-container w3-padding w3-card" method="POST">
+            <label class="w3-text-teal" for="comment"><b>Comment</b> :
+            <textarea id="comment" name="comment" class="w3-input  w3-text-teal post-content" required="required" >{{comment.comment if comment}}</textarea></label>
+            <input type="submit" class="w3-btn w3-teal w3-margin" value="Save">
+            <a href="/posts/{{post.key().id() if post}}" class="w3-btn w3-red w3-margin">Cancel</a>
+        </form>
+    </section>
+</section>
+{% endblock %}

@@ -20,7 +20,7 @@ import re
 
 from cookielib import encrypt_cookie_value, decrypt_cookie_value
 from passwordlib import make_pw_hash, verify_pw_hash
-from models import User, Post
+from models import User, Post, Comment
 template_dir = os.path.join(os.path.dirname(__file__), 'templates')
 jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
@@ -181,11 +181,13 @@ class PostHandler(UserCookieHandler):
             else:
                 self.redirect('/')
         else:
+            comments = Comment.all().filter('post_id =', post_id).order('-added')
             if self.user:
                 self.render("post.html", user=self.user, post=post,
-                            belongs_to_user=str(self.user.key().id()) == post.user_id)
+                            belongs_to_user=str(self.user.key().id()) == post.user_id, comments=comments)
             else:
-                self.render("post.html", post=post, belongs_to_user=False)
+                self.render("post.html", post=post,
+                            belongs_to_user=False, comments=comments)
 
 
 ############################# SECURE USER PAGE HANDLERS ##################
@@ -232,8 +234,10 @@ class LikePostHandler(SecurePostHandler):
         message = ''
         self.set_post(post_id)
         if not self.post_belongs_to_user() and self.user:
-            self.blog_post = self.blog_post.like_post(str(self.user.key().id()))
+            self.blog_post = self.blog_post.like_post(
+                str(self.user.key().id()))
             self.blog_post.put()
+            self.redirect('/posts/'+post_id)
         else:
             message = 'You cannot like your own post!'
         self.render('/post.html', user=self.user, post=self.blog_post,
@@ -287,12 +291,54 @@ class CommentHandler(SecurePostHandler):
         if self.user:
             comment = self.get_form_value('comment')
             if comment:
-                self.set_post(post_id)
-                self.blog_post.comments.insert(0, comment)
-                self.blog_post.put()
+                Comment.add(comment=comment,
+                            user_id=str(self.user.key().id()),
+                            post_id=post_id,
+                            user_name=self.user.firstname).put()
+                print('comment added')
             self.redirect('/posts/' + post_id)
         else:
             self.redirect('/login')
+
+
+class DeleteCommentHandler(SecurePostHandler):
+    def post(self, post_id, comment_id):
+        self.set_post(post_id)
+        if self.post_belongs_to_user:
+            comment = Comment.get_by_id(int(comment_id))
+            if comment:
+                Comment.delete(comment)
+            self.redirect('/posts/' + post_id)
+        else:
+            self.redirect('/welcome')
+
+
+class EditCommentHandler(SecurePostHandler):
+    def get(self, post_id, comment_id):
+        self.set_post(post_id)
+        if self.post_belongs_to_user():
+            comment = Comment.get_by_id(int(comment_id))
+            self.render('editcomment.html', user=self.user,
+                        post=self.blog_post, comment=comment)
+        else:
+            self.redirect('/posts/' + post_id)
+
+    def post(self, post_id, comment_id):
+        self.set_post(post_id)
+        old_comment = Comment.get_by_id(int(comment_id))
+        if self.post_belongs_to_user():
+            new_comment = self.get_form_value('comment')
+            print(new_comment)
+            if new_comment:
+                old_comment.comment = new_comment
+                old_comment.put()
+                self.redirect('/posts/' + post_id)
+            else:
+                message = 'Please Enter New Comment!'
+                self.render('editcomment.html', user=self.user,
+                            comment=old_comment, post=self.blog_post, message=message)
+        else:
+            self.redirect('/posts/' + post_id)
 
 
 app = webapp2.WSGIApplication([
@@ -305,6 +351,8 @@ app = webapp2.WSGIApplication([
     (r'/posts/(\d+)/delete', DeletePostHandler),
     (r'/posts/(\d+)/comment', CommentHandler),
     (r'/posts/(\d+)/like', LikePostHandler),
+    (r'/posts/(\d+)/(\d+)/edit', EditCommentHandler),
+
     (r'/posts/new', NewPostHandler),
     (r'/login', LoginHandler),
     (r'/logout', LogoutHandler)

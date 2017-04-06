@@ -1,10 +1,9 @@
 {% extends "layout.html" %} {% block title %} Post - {{post.title}} {% endblock %} {% block content %}
 <section class="w3-content">
     <div class="w3-text-red">
-            {{message}}
-        </div>
+        {{message}}
+    </div>
     <article class="w3-card-4">
-        
         <header class="w3-container w3-padding w3-teal">
             <h2>{{post.title}}</h2>
         </header>
@@ -18,8 +17,10 @@
                 <a href="/posts/{{post.key().id()}}/delete" class="w3-btn w3-red">Delete</a>
             </div> {% else %}
             <form action="/posts/{{post.key().id()}}/like" method="POST">
-                {{post.likes | length}} Likes
-                <input type="submit" value="Like" class="w3-btn w3-green"></form> {% endif %}
+                {{post.likes | length}} Likes {% if user and user.key().id()|string not in post.likes or not user %}
+                <input type="submit" value="Like" class="w3-btn w3-green"> {% elif user %}
+                <input type="button" value="You Liked It" class="w3-btn w3-indigo" disabled> {% endif %}</form> {% endif
+            %}
         </footer>
     </article>
     <section class="w3-panel">
@@ -32,12 +33,18 @@
     <section class="w3-text-teal">
         <section class="w3-padding w3-teal"></section>
         <h3>Comments</h3>
-        {% for comment in post.comments %}
-        <article class="w3-border-top">
-            <header></header>
-            <p>{{comment}}</p>
-        </article>
-        {% endfor %}
+        {% if comments %} {% for comment in comments %}
+        <div class="w3-panel w3-leftbar w3-light-grey">
+            <p class="w3-xlarge w3-serif"><i>"{{comment.comment}}"</i></p>
+            <p> -- {{comment.user_name}}</p>
+            {% if belongs_to_user %}
+            <div class="w3-right w3-panel">
+                <a href="/posts/{{post.key().id() if post}}/{{comment.key().id() if comment}}/edit" class="w3-btn w3-khaki">Edit</a>
+                <a href="" class="w3-btn w3-red">Delete</a>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %} {% endif %}
     </section>
 </section>
 {% endblock %}
