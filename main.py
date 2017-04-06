@@ -301,8 +301,9 @@ class CommentHandler(SecurePostHandler):
             self.redirect('/login')
 
 
-class DeleteCommentHandler(SecurePagesHandler):
+class DeleteCommentHandler(SecurePostHandler):
     def get(self, post_id, comment_id):
+        self.set_post(post_id)
         comment = Comment.get_by_id(int(comment_id))
         if comment and self.user and str(self.user.key().id()) == comment.user_id:
             self.render('deletecomment.html',
@@ -311,6 +312,7 @@ class DeleteCommentHandler(SecurePagesHandler):
             self.redirect('/posts/' + post_id)
 
     def post(self, post_id, comment_id):
+        self.set_post(post_id)
         comment = Comment.get_by_id(int(comment_id))
         if comment and self.user and str(self.user.key().id()) == comment.user_id:
             Comment.delete(comment)

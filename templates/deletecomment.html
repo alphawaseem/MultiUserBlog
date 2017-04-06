@@ -9,7 +9,7 @@
     <h4>{{comment.comment}}</h4>
     <form method="post">
         <input type="submit" value="Yes!" class="w3-btn w3-red">
-        <a class="w3-btn w3-teal" href="/welcome">No! Take Me Home.</a>
+        <a class="w3-btn w3-teal" href="/posts/{{post.key().id() if post}}">No! Take Me Back</a>
     </form>
 
 </section>
