@@ -43,6 +43,9 @@ class Handler(webapp2.RequestHandler):
 
 
 class CookieHandler(Handler):
+    """
+    This class will set and read cookies
+    """
     def set_secure_cookie(self, name, val):
         cookie_val = encrypt_cookie_value(val)
         self.response.headers.add_header(
@@ -71,6 +74,10 @@ class UserCookieHandler(CookieHandler):
 
 
 class SecurePagesHandler(UserCookieHandler):
+    """ This class is used for pages which requires users to 
+    be logged in. If user is not logged in the it redirects to
+    login page
+    """
     def initialize(self, *a, **kw):
         super(SecurePagesHandler, self).initialize(*a, **kw)
         if not self.user:
@@ -78,7 +85,14 @@ class SecurePagesHandler(UserCookieHandler):
 
 
 class SecurePostHandler(SecurePagesHandler):
+    """
+    Helper class which is used to view, edit and delete a post. 
+    """
     def set_post(self, post_id):
+        """
+        Call this method in your inherited class with post_id param to set a instance variable 
+        call blog_post. This will give access to the given post in all the subclasses
+        """
         self.blog_post = Post.get_by_id(int(post_id))
         if self.blog_post:
             return self.blog_post
@@ -86,6 +100,9 @@ class SecurePostHandler(SecurePagesHandler):
             self.redirect('/welcome')
 
     def post_belongs_to_user(self):
+        """
+            check if a post belongs to current logged in user.
+        """
         if self.user and self.blog_post:
             return str(self.user.key().id()) == self.blog_post.user_id
         return False
