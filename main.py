@@ -320,8 +320,8 @@ class DeleteCommentHandler(SecurePagesHandler):
 class EditCommentHandler(SecurePostHandler):
     def get(self, post_id, comment_id):
         self.set_post(post_id)
-        if self.post_belongs_to_user():
-            comment = Comment.get_by_id(int(comment_id))
+        comment = Comment.get_by_id(int(comment_id))
+        if comment and self.user and str(self.user.key().id()) == comment.user_id:
             self.render('editcomment.html', user=self.user,
                         post=self.blog_post, comment=comment)
         else:
@@ -329,18 +329,17 @@ class EditCommentHandler(SecurePostHandler):
 
     def post(self, post_id, comment_id):
         self.set_post(post_id)
-        old_comment = Comment.get_by_id(int(comment_id))
-        if self.post_belongs_to_user():
+        comment = Comment.get_by_id(int(comment_id))
+        if comment and self.user and str(self.user.key().id()) == comment.user_id:
             new_comment = self.get_form_value('comment')
-            print(new_comment)
             if new_comment:
-                old_comment.comment = new_comment
-                old_comment.put()
+                comment.comment = new_comment
+                comment.put()
                 self.redirect('/posts/' + post_id)
             else:
                 message = 'Please Enter New Comment!'
                 self.render('editcomment.html', user=self.user,
-                            comment=old_comment, post=self.blog_post, message=message)
+                            comment=comment, post=self.blog_post, message=message)
         else:
             self.redirect('/posts/' + post_id)
 
