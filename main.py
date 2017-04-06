@@ -307,7 +307,7 @@ class DeleteCommentHandler(SecurePostHandler):
         comment = Comment.get_by_id(int(comment_id))
         if comment and self.user and str(self.user.key().id()) == comment.user_id:
             self.render('deletecomment.html',
-                        user=self.user, comment=comment)
+                        user=self.user, comment=comment,post=self.blog_post)
         else:
             self.redirect('/posts/' + post_id)
 
