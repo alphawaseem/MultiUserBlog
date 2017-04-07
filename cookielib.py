@@ -10,12 +10,14 @@ import hmac
 # My Secret Key
 secret = '$he$lloworld$welcometo$myblog$'
 
+
 def encrypt_cookie_value(val):
     """
-    This Function encrypts the given value using hmac and 
+    This Function encrypts the given value using hmac and
     a secret key
     """
     return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
+
 
 def decrypt_cookie_value(secure_val):
     """

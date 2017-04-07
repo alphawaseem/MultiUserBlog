@@ -63,4 +63,8 @@ class Comment(db.Model):
 
     @classmethod
     def add(cls, comment, user_id, post_id, user_name):
-        return Comment(comment=comment, user_id=user_id, post_id=post_id, user_name=user_name)
+        return Comment(
+            comment=comment,
+            user_id=user_id,
+            post_id=post_id,
+            user_name=user_name)

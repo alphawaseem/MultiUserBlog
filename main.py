@@ -26,7 +26,7 @@ jinja_env = jinja2.Environment(
     loader=jinja2.FileSystemLoader(template_dir), autoescape=True)
 
 
-################################# BASE HANDLERS #############################
+# BASE HANDLERS #
 class Handler(webapp2.RequestHandler):
     def write(self, *a, **kw):
         self.response.out.write(*a, **kw)
@@ -46,6 +46,7 @@ class CookieHandler(Handler):
     """
     This class will set and read cookies
     """
+
     def set_secure_cookie(self, name, val):
         cookie_val = encrypt_cookie_value(val)
         self.response.headers.add_header(
@@ -74,10 +75,11 @@ class UserCookieHandler(CookieHandler):
 
 
 class SecurePagesHandler(UserCookieHandler):
-    """ This class is used for pages which requires users to 
+    """ This class is used for pages which requires users to
     be logged in. If user is not logged in the it redirects to
     login page
     """
+
     def initialize(self, *a, **kw):
         super(SecurePagesHandler, self).initialize(*a, **kw)
         if not self.user:
@@ -86,12 +88,15 @@ class SecurePagesHandler(UserCookieHandler):
 
 class SecurePostHandler(SecurePagesHandler):
     """
-    Helper class which is used to view, edit and delete a post. 
+    Helper class which is used to view, edit and delete a post.
     """
+
     def set_post(self, post_id):
         """
-        Call this method in your inherited class with post_id param to set a instance variable 
-        call blog_post. This will give access to the given post in all the subclasses
+        Call this method in your inherited class with
+        post_id param to set instance variable
+        call blog_post. This will give access to
+        the given post in all the subclasses
         """
         self.blog_post = Post.get_by_id(int(post_id))
         if self.blog_post:
@@ -108,7 +113,7 @@ class SecurePostHandler(SecurePagesHandler):
         return False
 
 
-################################# PUBLIC PAGE HANDLERS ###################
+# PUBLIC PAGE HANDLERS #
 class MainPage(UserCookieHandler):
     def get(self):
         posts = Post.all().order('-added').fetch(10)
@@ -142,7 +147,8 @@ class RegisterHandler(UserCookieHandler):
                           lastname=lastname, email=email)
             have_error = False
             if self.email_exists(email):
-                params['error_email'] = 'You cannot use this email. It might have already taken!'
+                params['error_email'] = 'You cannot use this email.\
+                 It might have already taken!'
                 have_error = True
 
             if not self.password_matched(password, password1):
@@ -150,7 +156,8 @@ class RegisterHandler(UserCookieHandler):
                 have_error = True
 
             if not agree:
-                params['error_agree_terms'] = 'You must agree to terms and conditions of the website.'
+                params['error_agree_terms'] = 'You must agree to terms \
+                 and conditions of the website.'
                 have_error = True
             if have_error:
                 self.render('register.html', **params)
@@ -198,16 +205,22 @@ class PostHandler(UserCookieHandler):
             else:
                 self.redirect('/')
         else:
-            comments = Comment.all().filter('post_id =', post_id).order('-added')
+            comments = Comment.all().filter('post_id =', post_id)\
+                .order('-added')
             if self.user:
-                self.render("post.html", user=self.user, post=post,
-                            belongs_to_user=str(self.user.key().id()) == post.user_id, comments=comments)
+                self.render(
+                    "post.html",
+                    user=self.user,
+                    post=post,
+                    belongs_to_user=str(
+                        self.user.key().id()) == post.user_id,
+                    comments=comments)
             else:
                 self.render("post.html", post=post,
                             belongs_to_user=False, comments=comments)
 
 
-############################# SECURE USER PAGE HANDLERS ##################
+# SECURE USER PAGE HANDLERS #
 class LogoutHandler(SecurePagesHandler):
     def get(self):
         self.render('logout.html', user=self.user)
@@ -226,7 +239,8 @@ class NewPostHandler(SecurePagesHandler):
         content = self.get_form_value('content')
         if title and content:
             post = Post.add_post(
-                title=title, content=content, user_id=str(self.user.key().id()))
+                title=title, content=content, user_id=str(
+                    self.user.key().id()))
             post.put()
             self.redirect('/posts/%s' % post.key().id())
         else:
@@ -242,7 +256,7 @@ class WelcomePageHandler(SecurePagesHandler):
             self.render('welcome.html', posts=posts, user=self.user)
 
 
-###################  SECURE USER WITH BLOG POSTS PAGE HANDLERS ###########
+# SECURE USER WITH BLOG POSTS PAGE HANDLERS #
 class LikePostHandler(SecurePostHandler):
     def get(self, post_id):
         self.redirect('/posts/' + post_id)
@@ -322,16 +336,18 @@ class DeleteCommentHandler(SecurePostHandler):
     def get(self, post_id, comment_id):
         self.set_post(post_id)
         comment = Comment.get_by_id(int(comment_id))
-        if comment and self.user and str(self.user.key().id()) == comment.user_id:
+        if comment and self.user and str(
+                self.user.key().id()) == comment.user_id:
             self.render('deletecomment.html',
-                        user=self.user, comment=comment,post=self.blog_post)
+                        user=self.user, comment=comment, post=self.blog_post)
         else:
             self.redirect('/posts/' + post_id)
 
     def post(self, post_id, comment_id):
         self.set_post(post_id)
         comment = Comment.get_by_id(int(comment_id))
-        if comment and self.user and str(self.user.key().id()) == comment.user_id:
+        if comment and self.user and str(
+                self.user.key().id()) == comment.user_id:
             Comment.delete(comment)
         self.redirect('/posts/' + post_id)
 
@@ -340,7 +356,8 @@ class EditCommentHandler(SecurePostHandler):
     def get(self, post_id, comment_id):
         self.set_post(post_id)
         comment = Comment.get_by_id(int(comment_id))
-        if comment and self.user and str(self.user.key().id()) == comment.user_id:
+        if comment and self.user and str(
+                self.user.key().id()) == comment.user_id:
             self.render('editcomment.html', user=self.user,
                         post=self.blog_post, comment=comment)
         else:
@@ -349,7 +366,8 @@ class EditCommentHandler(SecurePostHandler):
     def post(self, post_id, comment_id):
         self.set_post(post_id)
         comment = Comment.get_by_id(int(comment_id))
-        if comment and self.user and str(self.user.key().id()) == comment.user_id:
+        if comment and self.user and str(
+                self.user.key().id()) == comment.user_id:
             new_comment = self.get_form_value('comment')
             if new_comment:
                 comment.comment = new_comment
@@ -357,8 +375,12 @@ class EditCommentHandler(SecurePostHandler):
                 self.redirect('/posts/' + post_id)
             else:
                 message = 'Please Enter New Comment!'
-                self.render('editcomment.html', user=self.user,
-                            comment=comment, post=self.blog_post, message=message)
+                self.render(
+                    'editcomment.html',
+                    user=self.user,
+                    comment=comment,
+                    post=self.blog_post,
+                    message=message)
         else:
             self.redirect('/posts/' + post_id)
 

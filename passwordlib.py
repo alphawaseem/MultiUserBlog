@@ -19,8 +19,8 @@ def make_pw_hash(name, pw, salt=None):
     """
     returns a salt and hashed value  in the format %s,%salt
     If salt in not given then it creates a new salt and returns
-    hashed value with salt. Else use that salt to generate hash this 
-    is useful when verifying the hash with raw values. 
+    hashed value with salt. Else use that salt to generate hash this
+    is useful when verifying the hash with raw values.
     It uses sha512 and mix of name password and salt.
     """
     if not salt:
